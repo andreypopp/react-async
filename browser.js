@@ -11,7 +11,7 @@ var AsyncStateMixin = {
 
   componentDidMount: function() {
     if (window.__reactAsyncStatePacket === undefined) {
-      this.getStateAsync(function(err, state) {
+      this.getInitialStateAsync(function(err, state) {
         if (err) throw err;
         this.setState(state);
       }.bind(this));
@@ -28,7 +28,7 @@ function createClass(spec) {
 
   invariant(
     spec.render,
-    'ReactAsync.createClass(...): Class specification must implement a `getStateAsync` method.' +
+    'ReactAsync.createClass(...): Class specification must implement a `getInitialStateAsync` method.' +
     'Otherwise you should use React.createClass(...).'
   );
 

@@ -11,10 +11,10 @@ Install via npm:
 ## Usage
 
 Use `ReactAsync.createClass(...)` to create a component which initialises
-a part of its state via async method `getStateAsync(cb)`:
+a part of its state via async method `getInitialStateAsync(cb)`:
 
     var AsyncComponent = ReactAsync.createClass({
-      getStateAsync: function(cb) {
+      getInitialStateAsync: function(cb) {
         xhr('/api/data', cb)
       },
 
@@ -25,7 +25,7 @@ a part of its state via async method `getStateAsync(cb)`:
       ...
     })
 
-Method `getStateAsync(cb)` is similar to `getInitialState()` but instead
+Method `getInitialStateAsync(cb)` is similar to `getInitialState()` but instead
 returns a result via callback which allows you to use asynchronous functions to
 get data from database or from remote HTTP API.
 

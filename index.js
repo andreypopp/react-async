@@ -20,7 +20,7 @@ function createClass(spec) {
 
   invariant(
     spec.render,
-    'ReactAsync.createClass(...): Class specification must implement a `getStateAsync` method.' +
+    'ReactAsync.createClass(...): Class specification must implement a `getInitialStateAsync` method.' +
     'Otherwise you should use React.createClass(...) method to create components with no async ' +
     'data fetching'
   );
@@ -28,8 +28,8 @@ function createClass(spec) {
   var render = spec.render;
 
   spec.render = function() {
-    var getStateAsync = Future.wrap(spec.getStateAsync.bind(this));
-    var state = getStateAsync().wait();
+    var getInitialStateAsync = Future.wrap(spec.getInitialStateAsync.bind(this));
+    var state = getInitialStateAsync().wait();
     Fiber.current.__reactAsyncStatePacket[this._rootNodeID] = state;
     this.state = this.state || {};
     for (var k in state)

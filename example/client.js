@@ -6,7 +6,7 @@ ReactMount.allowFullPageRender = true;
 
 var App = ReactAsync.createClass({
 
-  getStateAsync: function(cb) {
+  getInitialStateAsync: function(cb) {
     setTimeout(function() {
       cb(null, {message: 'Hello'});
     }, 0);
@@ -24,7 +24,7 @@ var App = ReactAsync.createClass({
 
 var Nested = ReactAsync.createClass({
 
-  getStateAsync: function(cb) {
+  getInitialStateAsync: function(cb) {
     setTimeout(function() {
       cb(null, {message: 'Hi'});
     }, 0);
