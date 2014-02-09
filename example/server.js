@@ -11,4 +11,6 @@ express()
       res.send(markup);
     });
   })
-  .listen(3000);
+  .listen(3000, function() {
+    console.log('Point your browser to http://localhost:3000');
+  });
