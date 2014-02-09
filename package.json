@@ -5,8 +5,7 @@
   "main": "index.js",
   "browser": "browser.js",
   "dependencies": {
-    "fibers": "~1.0.1",
-    "react": "~0.8.0"
+    "fibers": "~1.0.1"
   },
   "devDependencies": {
     "semver": "~2.2.1",
