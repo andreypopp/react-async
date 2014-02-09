@@ -57,7 +57,7 @@ function renderComponentToString(component, cb) {
         if (/<\/body>$/.exec(markup)) {
           markup = markup.replace(/<\/body>$/, dataPacker + '</body>')
         } else if (/<\/html>$/.exec(markup)) {
-          markup = markup.replace(/<\/html>$/, dataPacker + '</body>')
+          markup = markup.replace(/<\/html>$/, dataPacker + '</html>')
         } else {
           markup = markup + dataPacker;
         }
