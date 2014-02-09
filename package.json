@@ -1,0 +1,38 @@
+{
+  "name": "react-async",
+  "version": "0.0.0",
+  "description": "React addon to render async components on server",
+  "main": "index.js",
+  "browser": "browser.js",
+  "dependencies": {
+    "fibers": "~1.0.1",
+    "react": "~0.8.0"
+  },
+  "devDependencies": {
+    "semver": "~2.2.1",
+    "jshint": "~2.4.3",
+    "connect-browserify": "~1.0.0",
+    "express": "~3.4.8",
+    "mocha": "~1.17.1",
+    "node-dev": "~2.1.6"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andreypopp/react-async"
+  },
+  "keywords": [
+    "react-component",
+    "async",
+    "server-rendering",
+    "react"
+  ],
+  "author": "Andrey Popp <8mayday@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andreypopp/react-async/issues"
+  },
+  "homepage": "https://github.com/andreypopp/react-async"
+}
