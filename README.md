@@ -29,7 +29,13 @@ Method `getInitialStateAsync(cb)` is similar to `getInitialState()` but instead
 returns a result via callback which allows you to use asynchronous functions to
 get data from database or from remote HTTP API.
 
-Then on server you can use `ReactAsync.renderComponentToString(component, cb)`
+If you are using async component you should use `ReactAsync.renderComponent`
+instead of `React.renderComponent`, even if your top level components is a
+regular one:
+
+    ReactAsync.renderComponent(AsyncComponent(), document.body)
+
+On server you can use `ReactAsync.renderComponentToString(component, cb)`
 function to get the markup:
 
     ReactAsync.renderComponentToString(AsyncComponent(), function(err, markup) {

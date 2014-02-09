@@ -49,4 +49,18 @@ function createClass(spec) {
   return React.createClass(spec);
 }
 
-module.exports = {createClass: createClass};
+function renderComponent(component, element) {
+  component = React.renderComponent(component, element);
+
+  // invalidate data after first render
+  if (window.__reactAsyncStatePacket !== undefined) {
+    window.__reactAsyncStatePacket = undefined;
+  }
+
+  return component;
+}
+
+module.exports = {
+  createClass: createClass,
+  renderComponent: renderComponent
+};
