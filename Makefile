@@ -6,7 +6,7 @@ install link:
 	@npm $@
 
 lint:
-	@$(BIN)/jshint *.js
+	@$(BIN)/jshint --verbose *.js
 
 test::
 	@$(BIN)/mocha -R spec specs/*.js

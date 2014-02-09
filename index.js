@@ -47,7 +47,7 @@ function createClass(spec) {
  * @param {Function<Error, String>} cb
  */
 function renderComponentToString(component, cb) {
-  Fiber(function() {
+  Fiber(function() { // jshint ignore:line
     Fiber.current.__reactAsyncStatePacket = {};
     try {
       React.renderComponentToString(component, function(markup) {
