@@ -19,8 +19,8 @@ function createClass(spec) {
   );
 
   invariant(
-    spec.render,
-    'ReactAsync.createClass(...): Class specification must implement a `getInitialStateAsync` method.' +
+    spec.getInitialStateAsync,
+    'ReactAsync.createClass(...): Class specification must implement a `getInitialStateAsync` method. ' +
     'Otherwise you should use React.createClass(...) method to create components with no async ' +
     'data fetching'
   );
