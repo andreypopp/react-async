@@ -66,6 +66,8 @@ function renderComponentToString(component, cb) {
       });
     } catch(err) {
       return cb(err);
+    } finally {
+      delete Fiber.current.__reactAsyncStatePacket;
     }
   }).run();
 }
