@@ -1,7 +1,8 @@
 "use strict";
 
-var React     = require('react');
-var invariant = require('react/lib/invariant');
+var React                   = require('react');
+var invariant               = require('react/lib/invariant');
+var getComponentFingerprint = require('./getComponentFingerprint');
 
 var AsyncStateMixin = {
 
@@ -36,7 +37,7 @@ function createClass(spec) {
 
   spec.render = function() {
     if (window.__reactAsyncStatePacket !== undefined) {
-      var state = window.__reactAsyncStatePacket[this._rootNodeID];
+      var state = window.__reactAsyncStatePacket[getComponentFingerprint(this)];
       for (var k in state)
         this.state[k] = state[k];
     }

@@ -1,9 +1,10 @@
 "use strict";
 
-var React     = require('react');
-var invariant = require('react/lib/invariant');
-var Future    = require('fibers/future');
-var Fiber     = require('fibers');
+var React                   = require('react');
+var invariant               = require('react/lib/invariant');
+var Future                  = require('fibers/future');
+var Fiber                   = require('fibers');
+var getComponentFingerprint = require('./getComponentFingerprint');
 
 /**
  * Create a component class which can get a part of its state by executing async
@@ -30,7 +31,7 @@ function createClass(spec) {
   spec.render = function() {
     var getInitialStateAsync = Future.wrap(spec.getInitialStateAsync.bind(this));
     var state = getInitialStateAsync().wait();
-    Fiber.current.__reactAsyncStatePacket[this._rootNodeID] = state;
+    Fiber.current.__reactAsyncStatePacket[getComponentFingerprint(this)] = state;
     this.state = this.state || {};
     for (var k in state)
       this.state[k] = state[k];
@@ -51,18 +52,20 @@ function renderComponentToString(component, cb) {
     Fiber.current.__reactAsyncStatePacket = {};
     try {
       React.renderComponentToString(component, function(markup) {
-        var dataPacker = renderDataPacket(Fiber.current.__reactAsyncStatePacket);
+        var data = Fiber.current.__reactAsyncStatePacket;
         delete Fiber.current.__reactAsyncStatePacket;
 
+        var dataPacket = renderDataPacket(data);
+
         if (/<\/body>$/.exec(markup)) {
-          markup = markup.replace(/<\/body>$/, dataPacker + '</body>')
+          markup = markup.replace(/<\/body>$/, dataPacket + '</body>')
         } else if (/<\/html>$/.exec(markup)) {
-          markup = markup.replace(/<\/html>$/, dataPacker + '</html>')
+          markup = markup.replace(/<\/html>$/, dataPacket + '</html>')
         } else {
-          markup = markup + dataPacker;
+          markup = markup + dataPacket;
         }
 
-        cb(null, markup);
+        cb(null, markup, data);
       });
     } catch(err) {
       return cb(err);
