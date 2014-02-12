@@ -9,7 +9,7 @@ lint:
 	@$(BIN)/jshint --verbose *.js
 
 test::
-	@#$(BIN)/mocha -R spec specs/*.js
+	@$(BIN)/mocha -R spec specs/*.js
 
 example::
 	@$(BIN)/node-dev --no-deps example/server.js
