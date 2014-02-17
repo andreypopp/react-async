@@ -49,28 +49,34 @@ function createClass(spec) {
  */
 function renderComponentToString(component, cb) {
   Fiber(function() { // jshint ignore:line
+    var markup;
+    var data;
+    var err;
     Fiber.current.__reactAsyncStatePacket = {};
     try {
-      React.renderComponentToString(component, function(markup) {
-        var data = Fiber.current.__reactAsyncStatePacket;
-        delete Fiber.current.__reactAsyncStatePacket;
+      markup = React.renderComponentToString(component);
+      data = Fiber.current.__reactAsyncStatePacket;
+      delete Fiber.current.__reactAsyncStatePacket;
 
-        var dataPacket = renderDataPacket(data);
+      var dataPacket = renderDataPacket(data);
 
-        if (/<\/body>$/.exec(markup)) {
-          markup = markup.replace(/<\/body>$/, dataPacket + '</body>')
-        } else if (/<\/html>$/.exec(markup)) {
-          markup = markup.replace(/<\/html>$/, dataPacket + '</html>')
-        } else {
-          markup = markup + dataPacket;
-        }
-
-        cb(null, markup, data);
-      });
-    } catch(err) {
-      return cb(err);
+      if (/<\/body>$/.exec(markup)) {
+        markup = markup.replace(/<\/body>$/, dataPacket + '</body>')
+      } else if (/<\/html>$/.exec(markup)) {
+        markup = markup.replace(/<\/html>$/, dataPacket + '</html>')
+      } else {
+        markup = markup + dataPacket;
+      }
+    } catch(e) {
+      err = e;
     } finally {
       delete Fiber.current.__reactAsyncStatePacket;
+    }
+
+    if (err) {
+      cb(err);
+    } else {
+      cb(null, markup, data);
     }
   }).run();
 }
