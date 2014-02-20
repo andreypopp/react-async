@@ -14,7 +14,7 @@
     "express": "~3.4.8",
     "mocha": "~1.17.1",
     "node-dev": "~2.1.6",
-    "react": "~0.9.0-rc1"
+    "react": "~0.9.0"
   },
   "scripts": {
     "test": "make test"
