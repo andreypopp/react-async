@@ -86,6 +86,6 @@ function exported by React Async:
     ReactAsync.renderComponent(Component(), document.body)
 
 Using this function instead of `React.renderComponent` allows asynchronous
-components to pick up state delivered from server That way there's no need to do
+components to pick up state delivered from server. That way there's no need to do
 additional XHR requests.
 
