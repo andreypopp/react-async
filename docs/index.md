@@ -88,3 +88,4 @@ function exported by React Async:
 Using this function instead of `React.renderComponent` allows asynchronous
 components to pick up state delivered from server That way there's no need to do
 additional XHR requests.
+
