@@ -1,52 +1,90 @@
-# react-async
+# React Async
 
-Async rendering for React components.
+React Async is an addon for React which allows to define and render components
+which require a part of its state to be fetched via an asynchronous method (for
+example using an XHR request to get data from a server).
+
+We call this type of components *asynchronous components*.
+
+## Motivation
+
+While this type of functionality is trivial to implement in React without an
+addon:
+
+    var Component = React.createClass({
+
+      componentDidMount: function() {
+        xhr('/api/data', function(data) {
+          this.setState(data)
+        }.bind(this))
+      },
+
+      render: function() { ... }
+    })
+
+The problem arises when you want to render UI on server with React. Lifecycle
+callback `componentDidMount` is executed only in a browser. That means that this
+approach isn't suitable when you want to get markup from server populated with
+data.
+
+Another solution would be to define a static method on your top-level component
+which would fetch data before rendering component hierarchy. But that limits you
+to have only top-level components be able to fetch its state.
+
+React Async allows you to have asynchronous components arbitrary deep in the hierarchy.
 
 ## Installation
 
-Install via npm:
+React Async is packaged on npm:
 
     % npm install react-async
 
 ## Usage
 
-Use `ReactAsync.createClass(...)` to create a component which initialises
-a part of its state via async method `getInitialStateAsync(cb)`:
+To create an asynchronous component you use a `createClass` function exported by React
+Async which is similar to `React.createClass`:
 
-    var AsyncComponent = ReactAsync.createClass({
+    var React = require('react')
+    var ReactAsync = require('react-async')
+
+    var Component = ReactAsync.createClass({
+
       getInitialStateAsync: function(cb) {
-        xhr('/api/data', cb)
+        xhr('/api/data', function(data) {
+          cb(data)
+        }.bind(this))
       },
 
-      render: function() {
-        ...
-      },
-
-      ...
+      render: function() { ... }
     })
 
-Method `getInitialStateAsync(cb)` is similar to `getInitialState()` but instead
-returns a result via callback which allows you to use asynchronous functions to
-get data from database or from remote HTTP API.
+The main thing to notice is `getInitialStateAsync` callback which mimics
+`getInitialState` but can fetch state asynchronously. The result of the function
+is mixed in into component state.
 
-If you are using async component you should use `ReactAsync.renderComponent`
-instead of `React.renderComponent`, even if your top level components is a
-regular one:
+### Rendering asynchronous components in Node.js
 
-    ReactAsync.renderComponent(AsyncComponent(), document.body)
+To render an asynchronous components in Node you use `renderComponentToString`
+function exported by React Async:
 
-On server you can use `ReactAsync.renderComponentToString(component, cb)`
-function to get the markup:
-
-    ReactAsync.renderComponentToString(AsyncComponent(), function(err, markup) {
-      res.send(markup)
+    ReactAsync.renderComponentToString(Component(), function(err, markup) {
+      // send markup to browser or ...
     })
 
-Note that `AsyncComponent` components is not required to be at the top level of
-component hierarchy, it can be deep inside it.
+This function is similar to `React.renderComponentToString` but ensures that all
+`getInitialStateAsync` callbacks of asynchronous components executed before the
+resulted markup is returned.
 
-## Example
+It also embeds fetched state in the markup as a JSON blob, so when you
+initialize React components in browser it won't need to do any XHR requests.
 
-The examples code is located at `example` directory. You can clone this
-repository and run `make install example` and point your web browser to
-`http://localhost:3000`.
+### Rendering asynchronous components in browser
+
+To render an asynchronous components in a browser you use `renderComponent`
+function exported by React Async:
+
+    ReactAsync.renderComponent(Component(), document.body)
+
+Using this function instead of `React.renderComponent` allows asynchronous
+components to pick up state delivered from server That way there's no need to do
+additional XHR requests.
