@@ -51,7 +51,7 @@ Async which is similar to `React.createClass`:
 
       getInitialStateAsync: function(cb) {
         xhr('/api/data', function(data) {
-          cb(data)
+          cb(null, data)
         }.bind(this))
       },
 
@@ -75,8 +75,41 @@ This function is similar to `React.renderComponentToString` but ensures that all
 `getInitialStateAsync` callbacks of asynchronous components executed before the
 resulted markup is returned.
 
-It also embeds fetched state in the markup as a JSON blob, so when you
-initialize React components in browser it won't need to do any XHR requests.
+It also embeds fetched state in the markup as a JSON blob, so when you initialize 
+React components in browser it won't need to do any XHR requests.
+
+### Manually injecting fetched state
+
+If you'd need more control over how state is injected into your markup you can 
+pass a third argument to the `renderComponentToString` callback function which 
+contains a snapshot of the current server state:
+
+    ReactAsync.renderComponentToString(Component(), function(err, markup, data) {
+      ...
+    })
+
+You can then do your own manual injection or use the `injectIntoMarkup` method. 
+In addition to injecting the current server state, `injectIntoMarkup` can also 
+reference your client script bundles ensuring server state is available before 
+they are run:
+
+    ReactAsync.renderComponentToString(Component(), function(err, markup, data) {
+      res.send(ReactAsync.injectIntoMarkup(markup, data, ['./client.js']))
+    })
+
+This produces the following markup:
+
+      ...
+
+      <script>
+        window.__reactAsyncStatePacket = {
+          ".1p74iy9hgqo.1.0__5": {
+            "message":"Hello"
+          }
+        }
+      </script>
+      <script src="./client.js"></script>
+    </body>
 
 ### Rendering asynchronous components in browser
 
@@ -86,6 +119,6 @@ function exported by React Async:
     ReactAsync.renderComponent(Component(), document.body)
 
 Using this function instead of `React.renderComponent` allows asynchronous
-components to pick up state delivered from server. That way there's no need to do
-additional XHR requests.
+components to pick up state delivered from server. That way there's no need 
+to do additional XHR requests.
 
