@@ -14,8 +14,6 @@ var App = ReactAsync.createClass({
 
   render: function() {
     return React.DOM.html(null,
-      React.DOM.head(null,
-        React.DOM.script({src: '/bundle.js'})),
       React.DOM.body(null,
         React.DOM.div(null, this.state.message || 'Loading...'),
         Nested()));
@@ -36,10 +34,7 @@ var Nested = ReactAsync.createClass({
 });
 
 if (typeof window !== 'undefined') {
-
-  window.onload = function() {
-    React.renderComponent(App(), document);
-  }
+  React.renderComponent(App(), document);
 }
 
 module.exports = App;

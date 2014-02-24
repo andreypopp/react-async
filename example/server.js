@@ -6,8 +6,11 @@ var App         = require('./client');
 express()
   .get('/bundle.js', browserify(__dirname + '/client', {debug: true, watch: true}))
   .get('/', function(req, res, next) {
-    ReactAsync.renderComponentToString(App(), function(err, markup) {
+    ReactAsync.renderComponentToString(App(), function(err, markup, data) {
       if (err) return next(err);
+
+      markup = ReactAsync.injectIntoMarkup(markup, data, ['./bundle.js']);
+
       res.send(markup);
     });
   })
