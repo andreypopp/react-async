@@ -51,7 +51,7 @@ Async which is similar to `React.createClass`:
 
       getInitialStateAsync: function(cb) {
         xhr('/api/data', function(data) {
-          cb(data)
+          cb(null, data)
         }.bind(this))
       },
 
