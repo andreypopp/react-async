@@ -45,51 +45,51 @@ function createClass(spec) {
  * Render component markup asynchronously.
  *
  * @param {ReactComponent} component
- * @param {Function<Error, String>} cb
+ * @param {Function<Error, String, Object>} cb
  */
 function renderComponentToString(component, cb) {
   Fiber(function() { // jshint ignore:line
-    var markup;
-    var data;
-    var err;
-    Fiber.current.__reactAsyncStatePacket = {};
     try {
-      markup = React.renderComponentToString(component);
-      data = Fiber.current.__reactAsyncStatePacket;
-      delete Fiber.current.__reactAsyncStatePacket;
+      Fiber.current.__reactAsyncStatePacket = {};
 
-      var dataPacket = renderDataPacket(data);
+      var data = Fiber.current.__reactAsyncStatePacket;
+      var markup = React.renderComponentToString(component);
 
-      if (/<\/body>$/.exec(markup)) {
-        markup = markup.replace(/<\/body>$/, dataPacket + '</body>')
-      } else if (/<\/html>$/.exec(markup)) {
-        markup = markup.replace(/<\/html>$/, dataPacket + '</html>')
-      } else {
-        markup = markup + dataPacket;
+      // Inject data if callback doesn't receive the data argument
+      if (cb.length == 2) {
+        markup = injectIntoMarkup(markup, data)
       }
+
+      cb(null, markup, data);
     } catch(e) {
-      err = e;
+      cb(e)
     } finally {
       delete Fiber.current.__reactAsyncStatePacket;
-    }
-
-    if (err) {
-      cb(err);
-    } else {
-      cb(null, markup, data);
     }
   }).run();
 }
 
-function renderDataPacket(state) {
-  return (
-    '<script>' +
-    'window.__reactAsyncStatePacket = ' + JSON.stringify(state) + ';' +
-    '</script>'
-  );
+/**
+ * Inject data and optional client scripts into markup.
+ *
+ * @param {String} markup
+ * @param {Object} data
+ * @param {Array} scripts
+ */
+function injectIntoMarkup(markup, data, scripts) {
+  var injected = '<script>window.__reactAsyncStatePacket=' + JSON.stringify(data) + '</script>';
+
+  if (scripts) {
+    injected += scripts.map(function(script) {
+      return '<script src="' + script + '"></script>';
+    })
+  }
+
+  return markup.replace('</body>', injected + '$&');
 }
 
 module.exports = {
   renderComponentToString: renderComponentToString,
+  injectIntoMarkup: injectIntoMarkup,
   createClass: createClass
 };

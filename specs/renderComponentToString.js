@@ -21,6 +21,14 @@ describe('ReactAsync.renderComponentToString', function() {
     }
   });
 
+  var AsyncApp = ReactAsync.createClass({
+    getInitialStateAsync: asyncState({message: 'goodbye'}),
+
+    render: function() {
+      return React.DOM.html(null, React.DOM.body(null, div(null, this.state.message)));
+    }
+  });
+
   it('fetches state before rendering a component', function(done) {
 
     var c = Async();
@@ -94,4 +102,37 @@ describe('ReactAsync.renderComponentToString', function() {
     });
   });
 
+  it('should automatically inject state when only two callback arguments are provided', function(done) {
+
+    var c = AsyncApp();
+
+    ReactAsync.renderComponentToString(c, function(err, markup) {
+      if (err) return done(err);
+
+      var async = c;
+      assert.ok(async);
+      assert.ok(markup.indexOf('goodbye') > -1);
+      assert.ok(markup.indexOf('<script>window.__reactAsyncStatePacket={') > -1);
+      assert.ok(markup.indexOf('{"message":"goodbye"}}</script></body>') > -1);
+
+      done();
+    });
+
+  })
+
+  it('should not inject state when three callback arguments are provided', function(done) {
+    var c = AsyncApp();
+
+    ReactAsync.renderComponentToString(c, function(err, markup, data) {
+      if (err) return done(err);
+
+      var async = c;
+      assert.ok(async);
+      assert.ok(markup.indexOf('goodbye') > -1);
+      assert.ok(markup.indexOf('<script>window.__reactAsyncStatePacket={') < 0);
+
+      done();
+    });
+
+  });
 });
