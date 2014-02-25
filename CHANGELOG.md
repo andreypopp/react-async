@@ -1,4 +1,9 @@
-##
+## 0.5.1
+
+  - Check if async component is still mounted before updating its state from and
+    async call.
+
+## 0.5.0
 
   - `ReactAsync.renderComponentToString` now can accept callback w/ 3rd argument
     `data`. In this case data will not be injected automatically into the
