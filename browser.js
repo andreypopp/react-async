@@ -13,8 +13,12 @@ var AsyncStateMixin = {
   componentDidMount: function() {
     if (window.__reactAsyncStatePacket === undefined) {
       this.getInitialStateAsync(function(err, state) {
-        if (err) throw err;
-        this.setState(state);
+        if (err) {
+          throw err;
+        }
+        if (this.isMounted()) {
+          this.setState(state);
+        }
       }.bind(this));
     }
   }
