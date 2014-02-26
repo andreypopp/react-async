@@ -82,7 +82,13 @@ when you want to get markup from server populated with data.
 
 React Async provides another function `renderComponentToStringWithAsyncState`
 which is asynchronous and triggers `getInitialStateAsync` calls in the component
-hierarchy:
+hierarchy.
+
+First, you'd need to install `fibers` package from npm to use that function:
+
+    % npm install fibers
+
+Then use it like:
 
     ReactAsync.renderComponentToStringWithAsyncState(
       Component(),
