@@ -59,19 +59,6 @@ declare `getInitialStateAsync(cb)` method:
 The method `getInitialStateAsync` mimics `getInitialState` but can fetch state
 asynchronously. The result of the function is mixed in into component state.
 
-To check if a component is an asynchronous component:
-
-    ReactAsyncMixin.isAsyncComponent(component)
-
-To prefetch async state of a component:
-
-    ReactAsyncMixin.prefetchAsyncState(component, function(err, component) {
-      // ...
-    })
-
-It returns a clone of a component with async state injected. Prefetching should
-be done before mounting a component into DOM.
-
 ## Rendering async components on server with fetched async state
 
 The problem arises when you want to render UI on server with React.
@@ -135,3 +122,21 @@ This produces the following markup:
       </script>
       <script src="./client.js"></script>
     </body>
+
+## Utilities
+
+React Async also provides a set of utilities for working with async components.
+
+To check if a component is an asynchronous component:
+
+    ReactAsyncMixin.isAsyncComponent(component)
+
+To prefetch async state of a component:
+
+    ReactAsyncMixin.prefetchAsyncState(component, function(err, component) {
+      // ...
+    })
+
+It returns a clone of a component with async state injected. Prefetching should
+be done before mounting a component into DOM.
+
