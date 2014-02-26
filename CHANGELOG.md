@@ -2,20 +2,21 @@
 
   - Fibers are now optional, they are only needed if you want to pre-render
     React components by fetching async state recursively, e.g. using
-    ReactAsync.renderComponentToStringWithAsyncState
+    `ReactAsync.renderComponentToStringWithAsyncState`
 
-  - Remove ReactAsync.createClass, React.createClass with ReactAsync.Mixin
-    should be used instead.
+  - `ReactAsync.createClass` is removed, use `React.createClass` with
+    `ReactAsync.Mixin` mixin instead.
 
-  - Remove ReactAsync.renderComponent, React.renderComponent should be used
-    instead
+  - `ReactAsync.renderComponent` is removed, use `React.renderComponent`
+    instead.
 
-  - Rename ReactAsync.renderComponentToString to
-    ReactAsync.renderComponentToStringWithAsyncState
+  - Rename `ReactAsync.renderComponentToString` to
+    `ReactAsync.renderComponentToStringWithAsyncState`
 
-  - Add ReactAsync.isAsyncComponent
+  - Add `ReactAsync.isAsyncComponent` to test if a component is an async
+    component.
 
-  - Add ReactAsync.prefetchAsyncState
+  - Add `ReactAsync.prefetchAsyncState` to prefetch state of an async component.
 
 ## 0.5.1
 
