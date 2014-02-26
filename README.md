@@ -129,11 +129,11 @@ React Async also provides a set of utilities for working with async components.
 
 To check if a component is an asynchronous component:
 
-    ReactAsyncMixin.isAsyncComponent(component)
+    ReactAsync.isAsyncComponent(component)
 
 To prefetch async state of a component:
 
-    ReactAsyncMixin.prefetchAsyncState(component, function(err, component) {
+    ReactAsync.prefetchAsyncState(component, function(err, component) {
       // ...
     })
 

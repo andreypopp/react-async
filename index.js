@@ -26,7 +26,7 @@ var Mixin = {
     invariant(
       typeof this.getInitialStateAsync === 'function',
       this.displayName + ' component must implement a `getInitialStateAsync` method. ' +
-      'Otherwise you should not use ReactAsyncMixin.Mixin'
+      'Otherwise you should not use ReactAsync.Mixin'
     );
 
     var Future = require('fibers/future');
