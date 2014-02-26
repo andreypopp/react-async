@@ -6,33 +6,29 @@ example using an XHR request to get data from a server).
 
 We call this type of components *asynchronous components*.
 
-## Motivation
+## Concept
 
-While this type of functionality is trivial to implement in React without an
-addon:
+In the first place, React Async is a contract for React components which need
+part of their state to be fetched asynchronously.
 
-    var Component = React.createClass({
+The contract specifies the following requirements:
 
-      componentDidMount: function() {
-        xhr('/api/data', function(data) {
-          this.setState(data)
-        }.bind(this))
-      },
+  * Component can fetch part of its state by specifying
+    `getInitialStateAsync(cb)` method which takes Node-style callback function
+    as an argument. This method can be called after the initial render.
 
-      render: function() { ... }
-    })
+  * Implementation of `getInitialStateAsync(cb)` can only access properties of
+    a component.
 
-The problem arises when you want to render UI on server with React. Lifecycle
-callback `componentDidMount` is executed only in a browser. That means that this
-approach isn't suitable when you want to get markup from server populated with
-data.
+  * Component should provide `render()` implementation which can render in
+    absence of asynchronous part of a state.
 
-Another solution would be to define a static method on your top-level component
-which would fetch data before rendering component hierarchy. But that limits you
-to have only top-level components be able to fetch its state.
+  * The state can be injected into a component by providing `asyncState`
+    property. In this case `getInitialStateAsync(cb)` method isn't called.
+    This should be used for testing purposes only.
 
-React Async allows you to have asynchronous components arbitrary deep in the
-hierarchy.
+Also React Async provides a mixin which implements such contract and a set of
+utilities for working with asynchronous components.
 
 ## Installation
 
@@ -42,13 +38,14 @@ React Async is packaged on npm:
 
 ## Usage
 
-To create an asynchronous component you use a `createClass` function exported by
-React Async which is similar to `React.createClass`:
+To create an asynchronous component you use a `ReactAsync.Mixin` mixin and
+declare `getInitialStateAsync(cb)` method:
 
     var React = require('react')
     var ReactAsync = require('react-async')
 
-    var Component = ReactAsync.createClass({
+    var Component = React.createClass({
+      mixins: [ReactAsync.Mixin],
 
       getInitialStateAsync: function(cb) {
         xhr('/api/data', function(data) {
@@ -59,36 +56,42 @@ React Async which is similar to `React.createClass`:
       render: function() { ... }
     })
 
-The main thing to notice is `getInitialStateAsync` callback which mimics
-`getInitialState` but can fetch state asynchronously. The result of the function
-is mixed in into component state.
+The method `getInitialStateAsync` mimics `getInitialState` but can fetch state
+asynchronously. The result of the function is mixed in into component state.
 
-### Rendering asynchronous components in Node.js
+To check if a component is an asynchronous component:
 
-To render an asynchronous components in Node you use `renderComponentToString`
-function exported by React Async:
+    ReactAsyncMixin.isAsyncComponent(component)
 
-    ReactAsync.renderComponentToString(Component(), function(err, markup) {
-      // send markup to browser or ...
+To prefetch async state of a component:
+
+    ReactAsyncMixin.prefetchAsyncState(component, function(err, component) {
+      // ...
     })
 
-This function is similar to `React.renderComponentToString` but ensures that all
-`getInitialStateAsync` callbacks of asynchronous components executed before the
-resulted markup is returned.
+It returns a clone of a component with async state injected. Prefetching should
+be done before mounting a component into DOM.
 
-It also embeds fetched state in the markup as a JSON blob, so when you
-initialize React components in browser it won't need to do any XHR requests.
+## Rendering async components on server with fetched async state
 
-### Rendering asynchronous components in browser
+The problem arises when you want to render UI on server with React.
 
-To render an asynchronous components in a browser you use `renderComponent`
-function exported by React Async:
+While React provides `renderComponentToString` function which can produce markup
+for a component, this function is synchronous. That means that it can't be used
+when you want to get markup from server populated with data.
 
-    ReactAsync.renderComponent(Component(), document.body)
+React Async provides another function `renderComponentToStringWithAsyncState`
+which is asynchronous and triggers `getInitialStateAsync` calls in the component
+hierarchy:
 
-Using this function instead of `React.renderComponent` allows asynchronous
-components to pick up state delivered from server. That way there's no need to
-do additional XHR requests.
+    ReactAsync.renderComponentToStringWithAsyncState(
+      Component(),
+      function(err, markup) {
+        // send markup to browser
+      })
+
+This way allows you to have asynchronous components arbitrary deep in the
+hierarchy.
 
 ### Manually injecting fetched state
 
@@ -96,18 +99,22 @@ If you'd need more control over how state is injected into your markup you can
 pass a third argument to the `renderComponentToString` callback function which
 contains a snapshot of the current server state:
 
-    ReactAsync.renderComponentToString(Component(), function(err, markup, data) {
-      ...
-    })
+    ReactAsync.renderComponentToStringWithAsyncState(
+      Component(),
+      function(err, markup, data) {
+        ...
+      })
 
 You can then do your own manual injection or use the `injectIntoMarkup` method.
 In addition to injecting the current server state, `injectIntoMarkup` can also
 reference your client script bundles ensuring server state is available before
 they are run:
 
-    ReactAsync.renderComponentToString(Component(), function(err, markup, data) {
-      res.send(ReactAsync.injectIntoMarkup(markup, data, ['./client.js']))
-    })
+    ReactAsync.renderComponentToStringWithAsyncState(
+      Component(),
+      function(err, markup, data) {
+        res.send(ReactAsync.injectIntoMarkup(markup, data, ['./client.js']))
+      })
 
 This produces the following markup:
 
@@ -122,4 +129,3 @@ This produces the following markup:
       </script>
       <script src="./client.js"></script>
     </body>
-
