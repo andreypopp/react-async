@@ -5,6 +5,7 @@
   "expr": true,
   "globalstrict": true,
   "globals": {
+    "console": false,
     "window": false,
     "require": false,
     "module": false,

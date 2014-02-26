@@ -4,7 +4,8 @@ var ReactAsync  = require('../');
 
 ReactMount.allowFullPageRender = true;
 
-var App = ReactAsync.createClass({
+var App = React.createClass({
+  mixins: [ReactAsync.Mixin],
 
   getInitialStateAsync: function(cb) {
     setTimeout(function() {
@@ -20,7 +21,8 @@ var App = ReactAsync.createClass({
   }
 });
 
-var Nested = ReactAsync.createClass({
+var Nested = React.createClass({
+  mixins: [ReactAsync.Mixin],
 
   getInitialStateAsync: function(cb) {
     setTimeout(function() {

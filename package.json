@@ -4,20 +4,22 @@
   "description": "React addon to render async components on server",
   "main": "index.js",
   "browser": "browser.js",
-  "dependencies": {
-    "fibers": "~1.0.1"
-  },
   "peerDependencies": {
     "react": "~0.9.0"
   },
   "devDependencies": {
+    "fibers": "~1.0.1",
     "semver": "~2.2.1",
     "jshint": "~2.4.3",
     "connect-browserify": "~1.0.0",
     "express": "~3.4.8",
     "mocha": "~1.17.1",
     "node-dev": "~2.1.6",
-    "react": "~0.9.0"
+    "react": "~0.9.0",
+    "react-async-mixin": "~0.0.0",
+    "mocaccino": "^0.3.1",
+    "phantomic": "^0.4.2",
+    "phantomjs": "^1.9.7-1"
   },
   "scripts": {
     "test": "make test"

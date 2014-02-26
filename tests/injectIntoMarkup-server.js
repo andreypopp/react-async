@@ -1,7 +1,7 @@
 var assert                  = require('assert');
 var ReactAsync              = require('../index');
 
-describe('ReactAsync.injectIntoMarkup', function() {
+describe('ReactAsync.injectIntoMarkup (server)', function() {
   it('injects data into markup', function() {
     var data = {foo: 'bar'};
 

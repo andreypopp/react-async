@@ -1,7 +1,7 @@
 var assert                  = require('assert');
 var React                   = require('react');
 var ReactAsync              = require('../index');
-var getComponentFingerprint = require('../getComponentFingerprint');
+var getComponentFingerprint = require('../lib/getComponentFingerprint');
 
 var div = React.DOM.div;
 
@@ -11,9 +11,11 @@ function asyncState(state) {
   }
 }
 
-describe('ReactAsync.renderComponentToString', function() {
+describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function() {
 
-  var Async = ReactAsync.createClass({
+  var Async = React.createClass({
+    mixins: [ReactAsync.Mixin],
+
     getInitialStateAsync: asyncState({message: 'hello'}),
 
     render: function() {
@@ -21,7 +23,9 @@ describe('ReactAsync.renderComponentToString', function() {
     }
   });
 
-  var AsyncApp = ReactAsync.createClass({
+  var AsyncApp = React.createClass({
+    mixins: [ReactAsync.Mixin],
+
     getInitialStateAsync: asyncState({message: 'goodbye'}),
 
     render: function() {
@@ -33,7 +37,7 @@ describe('ReactAsync.renderComponentToString', function() {
 
     var c = Async();
 
-    ReactAsync.renderComponentToString(c, function(err, markup, data) {
+    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c;
@@ -57,7 +61,7 @@ describe('ReactAsync.renderComponentToString', function() {
     });
 
     var c = Outer();
-    ReactAsync.renderComponentToString(c, function(err, markup, data) {
+    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c._renderedComponent;
@@ -74,7 +78,8 @@ describe('ReactAsync.renderComponentToString', function() {
 
   it('handles async components which have same root node id', function(done) {
 
-    var OuterAsync = ReactAsync.createClass({
+    var OuterAsync = React.createClass({
+      mixins: [ReactAsync.Mixin],
       getInitialStateAsync: asyncState({className: 'outer'}),
       render: function() {
         return Async({className: this.state.className});
@@ -82,7 +87,7 @@ describe('ReactAsync.renderComponentToString', function() {
     });
 
     var outer = OuterAsync();
-    ReactAsync.renderComponentToString(outer, function(err, markup, data) {
+    ReactAsync.renderComponentToStringWithAsyncState(outer, function(err, markup, data) {
       if (err) return done(err);
 
       var inner = outer._renderedComponent;
@@ -106,7 +111,7 @@ describe('ReactAsync.renderComponentToString', function() {
 
     var c = AsyncApp();
 
-    ReactAsync.renderComponentToString(c, function(err, markup) {
+    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup) {
       if (err) return done(err);
 
       var async = c;
@@ -123,7 +128,7 @@ describe('ReactAsync.renderComponentToString', function() {
   it('should not inject state when three callback arguments are provided', function(done) {
     var c = AsyncApp();
 
-    ReactAsync.renderComponentToString(c, function(err, markup, data) {
+    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c;

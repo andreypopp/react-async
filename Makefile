@@ -1,18 +1,29 @@
-BIN = ./node_modules/.bin
-REPO = $(shell cat .git/config | grep url | xargs echo | sed -E 's/^url = //g')
-REPONAME = $(shell echo $(REPO) | sed -E 's_.+:([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]+)\.git_\1/\2_')
+BIN 	= ./node_modules/.bin
+PATH := $(BIN):$(PATH)
+
+TEST_SUITES 				= $(wildcard tests/*.js)
+TEST_SUITES_COMMON  = $(filter-out %-browser.js %-server.js, $(TEST_SUITES))
+TEST_SUITES_BROWSER = $(filter %-browser.js, $(TEST_SUITES))
+TEST_SUITES_SERVER 	= $(filter %-server.js, $(TEST_SUITES))
 
 install link:
 	@npm $@
 
 lint:
-	@$(BIN)/jshint --verbose *.js
+	@jshint --verbose *.js lib/*.js
 
-test::
-	@$(BIN)/mocha -R spec specs/*.js
+test:: test-server test-browser
+
+test-server::
+	@mocha -R spec $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
+
+test-browser:
+	@browserify -d -p [ mocaccino -R spec ] \
+		$(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER) \
+		| phantomic
 
 example::
-	@$(BIN)/node-dev --no-deps example/server.js
+	@node-dev --no-deps example/server.js
 
 release-patch: test lint
 	@$(call release,patch)

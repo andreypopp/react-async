@@ -2,52 +2,58 @@
 
 var React                   = require('react');
 var invariant               = require('react/lib/invariant');
-var Future                  = require('fibers/future');
-var Fiber                   = require('fibers');
-var getComponentFingerprint = require('./getComponentFingerprint');
+var BaseMixin               = require('./lib/BaseMixin');
+var getComponentFingerprint = require('./lib/getComponentFingerprint');
+var injectIntoMarkup        = require('./lib/injectIntoMarkup');
 
-/**
- * Create a component class which can get a part of its state by executing async
- * routine.
- *
- * @param {Object} spec
- */
-function createClass(spec) {
+var Mixin = {
+  mixins: [BaseMixin],
 
-  invariant(
-    spec.render,
-    'ReactAsync.createClass(...): Class specification must implement a `render` method.'
-  );
+  getDefaultProps: function() {
 
-  invariant(
-    spec.getInitialStateAsync,
-    'ReactAsync.createClass(...): Class specification must implement a `getInitialStateAsync` method. ' +
-    'Otherwise you should use React.createClass(...) method to create components with no async ' +
-    'data fetching'
-  );
+    var Fiber;
 
-  var render = spec.render;
+    try {
+      Fiber = require('fibers');
+    } catch(err) {
 
-  spec.render = function() {
-    var getInitialStateAsync = Future.wrap(spec.getInitialStateAsync.bind(this));
-    var state = getInitialStateAsync().wait();
-    Fiber.current.__reactAsyncStatePacket[getComponentFingerprint(this)] = state;
-    this.state = this.state || {};
-    for (var k in state)
-      this.state[k] = state[k];
-    return render.call(this);
+    }
+
+    if (Fiber === undefined || Fiber.current === undefined) {
+      return {};
+    }
+
+    invariant(
+      typeof this.getInitialStateAsync === 'function',
+      this.displayName + ' component must implement a `getInitialStateAsync` method. ' +
+      'Otherwise you should not use ReactAsyncMixin.Mixin'
+    );
+
+    var Future = require('fibers/future');
+
+    var getInitialStateAsync = Future.wrap(this.getInitialStateAsync);
+    var asyncState = getInitialStateAsync().wait();
+    var fingerprint = getComponentFingerprint(this);
+    Fiber.current.__reactAsyncStatePacket[fingerprint] = asyncState;
+    return {asyncState: asyncState};
   }
-
-  return React.createClass(spec);
 }
 
 /**
- * Render component markup asynchronously.
+ * Prefetch async state recursively and render component markup asynchronously.
  *
  * @param {ReactComponent} component
  * @param {Function<Error, String, Object>} cb
  */
-function renderComponentToString(component, cb) {
+function renderComponentToStringWithAsyncState(component, cb) {
+
+  try {
+    var Fiber = require('fibers');
+  } catch (err) {
+    console.error('install fibers: npm install fibers');
+    throw err;
+  }
+
   Fiber(function() { // jshint ignore:line
     try {
       Fiber.current.__reactAsyncStatePacket = {};
@@ -69,31 +75,10 @@ function renderComponentToString(component, cb) {
   }).run();
 }
 
-/**
- * Inject data and optional client scripts into markup.
- *
- * @param {String} markup
- * @param {Object} data
- * @param {?Array} scripts
- */
-function injectIntoMarkup(markup, data, scripts) {
-  var injected = '<script>window.__reactAsyncStatePacket=' + JSON.stringify(data) + '</script>';
-
-  if (scripts) {
-    injected += scripts.map(function(script) {
-      return '<script src="' + script + '"></script>';
-    }).join('');
-  }
-
-  if (markup.indexOf('</body>') > -1) {
-    return markup.replace('</body>', injected + '$&');
-  } else {
-    return markup + injected;
-  }
-}
-
 module.exports = {
-  renderComponentToString: renderComponentToString,
-  injectIntoMarkup: injectIntoMarkup,
-  createClass: createClass
+  prefetchAsyncState: require('./lib/prefetchAsyncState'),
+  isAsyncComponent: require('./lib/isAsyncComponent'),
+  Mixin: Mixin,
+  renderComponentToStringWithAsyncState: renderComponentToStringWithAsyncState,
+  injectIntoMarkup: injectIntoMarkup
 };
