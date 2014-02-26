@@ -140,4 +140,35 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     });
 
   });
+
+  it('executes getInitialStateAsync in a context of a component', function(done) {
+
+    var C = React.createClass({
+      mixins: [ReactAsync.Mixin],
+
+      getInitialStateAsync: function(cb) {
+        process.nextTick(function() {
+          cb(null, {a: this.props.a});
+        }.bind(this));
+      },
+
+      render: function() {
+        return div(null, this.state.a);
+      }
+    });
+
+    var c = C({a: '42state'});
+
+    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+      if (err) return done(err);
+
+      var async = c;
+      assert.ok(async);
+      assert.ok(markup.indexOf('42state') > -1);
+      assert.deepEqual(async.state, {a: '42state'});
+
+      done();
+    });
+
+  });
 });

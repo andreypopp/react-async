@@ -31,7 +31,7 @@ var Mixin = {
 
     var Future = require('fibers/future');
 
-    var getInitialStateAsync = Future.wrap(this.getInitialStateAsync);
+    var getInitialStateAsync = Future.wrap(this.getInitialStateAsync.bind(this));
     var asyncState = getInitialStateAsync().wait();
     var fingerprint = getComponentFingerprint(this);
     Fiber.current.__reactAsyncStatePacket[fingerprint] = asyncState;
