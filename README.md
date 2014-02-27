@@ -123,20 +123,54 @@ This produces the following markup:
       <script src="./client.js"></script>
     </body>
 
-## Utilities
+## API reference
 
-React Async also provides a set of utilities for working with async components.
+#### **ReactAsync.Mixin**
 
-To check if a component is an asynchronous component:
+Components which uses this mixin should define `getInitialStateAsync(cb)` method
+to fetch a part of its state asynchronously.
 
-    ReactAsync.isAsyncComponent(component)
+#### **ReactAsync.renderComponentToStringWithAsyncState(component, cb)**
 
-To prefetch async state of a component:
+Renders component to a markup string while  calling `getInitialStateAsync(cb)`
+method of asynchronous components in the component hierarchy.
 
-    ReactAsync.prefetchAsyncState(component, function(err, component) {
-      // ...
-    })
+This guarantees that components will have their state fetched before calling its
+`render()` method.
 
-It returns a clone of a component with async state injected. Prefetching should
-be done before mounting a component into DOM.
+Callback `cb` is called with either two or three arguments (depending on the
+arity of the callback itself).
 
+In the case of two arguments `err` and `markup`, async state data will already be
+injected into `markup` to reproduce the same UI in a browser.
+
+In the case of three arguments `err`, `markup` and `data`, an API consumer should
+inject data manually (for example using `injectIntoMarkup(markup, data,
+scripts)` function.
+
+#### **ReactAsync.isAsyncComponent(component)**
+
+Returns `true` if a `component` is an asynchronous component.
+
+#### **ReactAsync.prefetchAsyncState(component, cb)**
+
+Prefetch the asynchronous state of a `component` by calling its
+`getInitialStateAsync(cb)` method.
+
+Callback `cb` is called with two arguments `err` and `component`, where
+`component` is a clone of a original component with its state injected.
+
+Prefetching should be done before mounting a component into DOM.
+
+#### **ReactAsync.injectIntoMarkup(markup, data, scripts)**
+
+Inject `data` into `markup` as JSON blob. Data will be injected as:
+
+    window.__reactAsyncStatePacket = { ... }
+
+This allows to transfer asynchronous state fetched on server to browser. That
+way components in browser won't need to call `getInitialStateAsync(cb)` method
+once more.
+
+If `scripts` is passed and is an array then inject `<script src="..."></script>`
+into the `markup` for each element of the array.
