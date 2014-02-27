@@ -10,7 +10,7 @@
   - `ReactAsync.renderComponent` is removed, use `React.renderComponent`
     instead.
 
-  - Rename `ReactAsync.renderComponentToString` to
+  - `ReactAsync.renderComponentToString` is renamed to
     `ReactAsync.renderComponentToStringWithAsyncState`
 
   - Add `ReactAsync.isAsyncComponent` to test if a component is an async

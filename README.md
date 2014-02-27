@@ -148,6 +148,10 @@ In the case of three arguments `err`, `markup` and `data`, an API consumer shoul
 inject data manually (for example using `injectIntoMarkup(markup, data,
 scripts)` function.
 
+You'd need to have `fibers` package from npm installed to use this function:
+
+    % npm install fibers
+
 #### **ReactAsync.isAsyncComponent(component)**
 
 Returns `true` if a `component` is an asynchronous component.
@@ -155,7 +159,8 @@ Returns `true` if a `component` is an asynchronous component.
 #### **ReactAsync.prefetchAsyncState(component, cb)**
 
 Prefetch the asynchronous state of a `component` by calling its
-`getInitialStateAsync(cb)` method.
+`getInitialStateAsync(cb)` method. Note that only an async state of the
+component itself would be prefetched but not of its children.
 
 Callback `cb` is called with two arguments `err` and `component`, where
 `component` is a clone of a original component with its state injected.
