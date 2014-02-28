@@ -15,13 +15,13 @@ The contract specifies the following requirements:
 
   * Component can fetch part of its state by specifying
     `getInitialStateAsync(cb)` method which takes Node-style callback function
-    as an argument. This method can be called after the initial render.
+    as an argument.
 
   * Implementation of `getInitialStateAsync(cb)` can only access properties of
     a component.
 
   * Component should provide `render()` implementation which can render in
-    absence of asynchronous part of a state.
+    absence of asynchronous part of the state.
 
   * The state can be injected into a component by providing `asyncState`
     property. In this case `getInitialStateAsync(cb)` method isn't called.
