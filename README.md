@@ -57,7 +57,7 @@ declare `getInitialStateAsync(cb)` method:
     })
 
 The method `getInitialStateAsync` mimics `getInitialState` but can fetch state
-asynchronously. The result of the function is mixed in into component state.
+asynchronously. The result of the function is mixed in into the component state.
 
 ## Rendering async components on server with fetched async state
 
