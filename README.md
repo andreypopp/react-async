@@ -89,8 +89,8 @@ hierarchy.
 ### Manually injecting fetched state
 
 If you'd need more control over how state is injected into your markup you can
-pass a third argument to the `renderComponentToString` callback function which
-contains a snapshot of the current server state:
+pass a third argument to the `renderComponentToStringWithAsyncState` callback
+function which contains a snapshot of the current server state:
 
     ReactAsync.renderComponentToStringWithAsyncState(
       Component(),
