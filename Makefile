@@ -1,10 +1,10 @@
 BIN 	= ./node_modules/.bin
 PATH := $(BIN):$(PATH)
 
-TEST_SUITES 				= $(wildcard tests/*.js)
+TEST_SUITES         = $(wildcard tests/*.js)
 TEST_SUITES_COMMON  = $(filter-out %-browser.js %-server.js, $(TEST_SUITES))
 TEST_SUITES_BROWSER = $(filter %-browser.js, $(TEST_SUITES))
-TEST_SUITES_SERVER 	= $(filter %-server.js, $(TEST_SUITES))
+TEST_SUITES_SERVER  = $(filter %-server.js, $(TEST_SUITES))
 
 install link:
 	@npm $@
