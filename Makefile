@@ -1,4 +1,4 @@
-BIN 	= ./node_modules/.bin
+BIN = ./node_modules/.bin
 PATH := $(BIN):$(PATH)
 
 TEST_SUITES         = $(wildcard tests/*.js)
