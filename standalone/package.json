@@ -1,0 +1,14 @@
+{
+  "name": "react-async-standalone",
+  "main": "./browser.js",
+  "browserify": {
+    "transform": [
+      "envify"
+    ]
+  },
+  "browserify-shim": {
+    "react": "global:React",
+    "react/lib/cloneWithProps": "global:React.addons.cloneWithProps",
+    "react/lib/invariant": "global:__ReactShim.invariant"
+  }
+}

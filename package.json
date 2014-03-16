@@ -18,7 +18,10 @@
     "react": "~0.9.0",
     "mocaccino": "^0.3.1",
     "phantomic": "^0.4.2",
-    "phantomjs": "^1.9.7-1"
+    "phantomjs": "^1.9.7-1",
+    "uglify-js": "^2.4.13",
+    "browserify": "^3.32.1",
+    "browserify-shim": "^3.3.1"
   },
   "scripts": {
     "test": "make test"
