@@ -165,7 +165,6 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
       var async = c;
       assert.ok(async);
       assert.ok(markup.indexOf('42state') > -1);
-      assert.deepEqual(async.state, {a: '42state'});
 
       done();
     });

@@ -32,11 +32,8 @@ describe('ReactAsync.prefetchAsyncState (browser)', function() {
 
   it('prefetches async state', function(done) {
     c = Component();
-    assert.deepEqual(c.state, null);
     ReactAsync.prefetchAsyncState(c, function(err, c) {
       assert.equal(called, 1);
-      assert.deepEqual(c.state, null);
-      assert.deepEqual(c.props, {asyncState: {message: 'hello'}});
       c = ReactTestUtils.renderIntoDocument(c);
       wait(40, function() {
         assert.equal(called, 1);
