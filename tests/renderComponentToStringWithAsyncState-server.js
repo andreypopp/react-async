@@ -44,7 +44,9 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
       assert.ok(async);
       assert.ok(markup.indexOf('hello') > -1);
 
-      var state = data[getComponentFingerprint(async)];
+      assert.equal(Object.keys(data).length, 1)
+      var id = Object.keys(data)[0];
+      var state = data[id];
       assert.ok(state);
       assert.deepEqual(state, {message: 'hello'});
 
@@ -64,11 +66,11 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
 
-      var async = c._renderedComponent;
-      assert.ok(async);
       assert.ok(markup.indexOf('hello') > -1);
 
-      var state = data[getComponentFingerprint(async)];
+      assert.equal(Object.keys(data).length, 1)
+      var id = Object.keys(data)[0];
+      var state = data[id];
       assert.ok(state);
       assert.deepEqual(state, {message: 'hello'});
 
@@ -90,19 +92,10 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     ReactAsync.renderComponentToStringWithAsyncState(outer, function(err, markup, data) {
       if (err) return done(err);
 
-      var inner = outer._renderedComponent;
-      assert.ok(inner);
       assert.ok(markup.indexOf('hello') > -1);
       assert.ok(markup.indexOf('outer') > -1);
 
-      innerState = data[getComponentFingerprint(inner)];
-      assert.ok(innerState);
-      assert.deepEqual(innerState, {message: 'hello'});
-
-      outerState = data[getComponentFingerprint(outer)];
-      assert.ok(outerState);
-      assert.deepEqual(outerState, {className: 'outer'});
-
+      assert.equal(Object.keys(data).length, 2)
       done();
     });
   });
