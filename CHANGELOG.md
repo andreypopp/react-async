@@ -1,3 +1,7 @@
+## 0.6.1
+
+  - Fix bug with updating injected state (via asyncState prop).
+
 ## 0.6.0
 
   - Fibers are now optional, they are only needed if you want to pre-render
