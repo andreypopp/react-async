@@ -1,3 +1,7 @@
+## 0.7.0
+
+  - Bump react dep to 0.10.0.
+
 ## 0.6.1
 
   - Fix bug with updating injected state (via asyncState prop).
