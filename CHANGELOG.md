@@ -1,3 +1,7 @@
+## 0.8.0
+
+  - Hooks to serialize/deserialize async state — stateFromJSON/stateToJSON.
+
 ## 0.7.0
 
   - Bump react dep to 0.10.0.
