@@ -127,10 +127,10 @@ This produces the following markup:
 
 You can provide `stateToJSON(state)` and `stateFromJSON(data)` methods to
 customize how async state is serialized/deserialized when it is transfered to a
-browser from server.
+browser from a server.
 
-That allows keeping object in state which are not POJSOs (Plain JS Objects), for
-example:
+That allows keeping objects in state which are not POJSOs (Plain JS Objects),
+for example:
 
     ...
 
