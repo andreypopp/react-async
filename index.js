@@ -34,7 +34,15 @@ var Mixin = {
     var getInitialStateAsync = Future.wrap(this.getInitialStateAsync.bind(this));
     var asyncState = getInitialStateAsync().wait();
     var fingerprint = getComponentFingerprint(this);
-    Fiber.current.__reactAsyncStatePacket[fingerprint] = asyncState;
+
+    var storedAsyncState = asyncState;
+
+    if (typeof this.stateToJSON === 'function') {
+      storedAsyncState = this.stateToJSON(storedAsyncState);
+    }
+
+    Fiber.current.__reactAsyncStatePacket[fingerprint] = storedAsyncState;
+
     return {asyncState: asyncState};
   }
 }

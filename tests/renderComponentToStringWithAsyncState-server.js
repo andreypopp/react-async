@@ -163,4 +163,56 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     });
 
   });
+
+  it('uses stateToJSON method (if defined) to serialize state', function(done) {
+
+    function SomeData(data) {
+      this.data = data;
+    }
+    SomeData.prototype.method = function() {
+      return this.data.key;
+    }
+
+    var C = React.createClass({
+      mixins: [ReactAsync.Mixin],
+
+      getInitialStateAsync: function(cb) {
+        cb(null, {someData: new SomeData({key: 'hi'})});
+      },
+
+      stateToJSON: function(state) {
+        return {
+          someData: {
+            __class__: 'SomeData',
+            params: {data: state.someData.data}
+          }
+        };
+      },
+
+      render: function() {
+        return React.DOM.div(null, this.state.someData.method());
+      }
+    });
+
+    var c = C();
+
+    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+      if (err) return done(err);
+
+      var async = c;
+      assert.ok(async);
+      assert.ok(markup.indexOf('>hi</div>') > -1);
+
+      assert.equal(Object.keys(data).length, 1)
+
+      data = data[Object.keys(data)[0]];
+      assert.ok(data.someData);
+      assert.deepEqual(data.someData, {
+        __class__: 'SomeData',
+        params: {data: {key: 'hi'}}
+      });
+      done();
+    });
+
+  });
 });

@@ -20,6 +20,10 @@ var Mixin = {
     var state = window.__reactAsyncStatePacket[fingerprint];
     delete window.__reactAsyncStatePacket[fingerprint];
 
+    if (typeof this.stateFromJSON === 'function') {
+      state = this.stateFromJSON(state);
+    }
+
     return {asyncState: state};
   }
 };

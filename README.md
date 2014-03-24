@@ -123,12 +123,59 @@ This produces the following markup:
       <script src="./client.js"></script>
     </body>
 
+### Custom state serialization and deserialization
+
+You can provide `stateToJSON(state)` and `stateFromJSON(data)` methods to
+customize how async state is serialized/deserialized when it is transfered to a
+browser from server.
+
+That allows keeping object in state which are not POJSOs (Plain JS Objects), for
+example:
+
+    ...
+
+    getInitialStateAsync: function(cb) {
+      cb(null, {message: new Message('Hello')})
+    },
+
+    stateFromJSON: function(state) {
+      return {message: new Message(state.message.msg)}
+    },
+
+    stateToJSON: function(state) {
+      return {message: {msg: state.message.msg}}
+    },
+
+    render: function() {
+      return (
+        <div>
+          {this.state.message ? this.state.message.say() || 'Loading'}
+        </div>
+      )
+    },
+
+    ...
+
+Where `Message` is a class defined as:
+
+    function Message(msg) {
+      this.msg = msg
+    }
+
+    Message.prototype.say = function() {
+      return this.msg
+    }
+
 ## API reference
 
 #### **ReactAsync.Mixin**
 
 Components which uses this mixin should define `getInitialStateAsync(cb)` method
 to fetch a part of its state asynchronously.
+
+Optionally components could define `stateToJSON(state)` and
+`stateFromJSON(data)` methods to customize how state serialized and deserialized
+when it's transfered to a browser.
 
 #### **ReactAsync.renderComponentToStringWithAsyncState(component, cb)**
 

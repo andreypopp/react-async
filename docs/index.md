@@ -15,13 +15,13 @@ The contract specifies the following requirements:
 
   * Component can fetch part of its state by specifying
     `getInitialStateAsync(cb)` method which takes Node-style callback function
-    as an argument. This method can be called after the initial render.
+    as an argument.
 
   * Implementation of `getInitialStateAsync(cb)` can only access properties of
     a component.
 
   * Component should provide `render()` implementation which can render in
-    absence of asynchronous part of a state.
+    absence of asynchronous part of the state.
 
   * The state can be injected into a component by providing `asyncState`
     property. In this case `getInitialStateAsync(cb)` method isn't called.
@@ -57,7 +57,7 @@ declare `getInitialStateAsync(cb)` method:
     })
 
 The method `getInitialStateAsync` mimics `getInitialState` but can fetch state
-asynchronously. The result of the function is mixed in into component state.
+asynchronously. The result of the function is mixed in into the component state.
 
 ## Rendering async components on server with fetched async state
 
@@ -89,8 +89,8 @@ hierarchy.
 ### Manually injecting fetched state
 
 If you'd need more control over how state is injected into your markup you can
-pass a third argument to the `renderComponentToString` callback function which
-contains a snapshot of the current server state:
+pass a third argument to the `renderComponentToStringWithAsyncState` callback
+function which contains a snapshot of the current server state:
 
     ReactAsync.renderComponentToStringWithAsyncState(
       Component(),
@@ -123,12 +123,59 @@ This produces the following markup:
       <script src="./client.js"></script>
     </body>
 
+### Custom state serialization and deserialization
+
+You can provide `stateToJSON(state)` and `stateFromJSON(data)` methods to
+customize how async state is serialized/deserialized when it is transfered to a
+browser from server.
+
+That allows keeping object in state which are not POJSOs (Plain JS Objects), for
+example:
+
+    ...
+
+    getInitialStateAsync: function(cb) {
+      cb(null, {message: new Message('Hello')})
+    },
+
+    stateFromJSON: function(state) {
+      return {message: new Message(state.message.msg)}
+    },
+
+    stateToJSON: function(state) {
+      return {message: {msg: state.message.msg}}
+    },
+
+    render: function() {
+      return (
+        <div>
+          {this.state.message ? this.state.message.say() || 'Loading'}
+        </div>
+      )
+    },
+
+    ...
+
+Where `Message` is a class defined as:
+
+    function Message(msg) {
+      this.msg = msg
+    }
+
+    Message.prototype.say = function() {
+      return this.msg
+    }
+
 ## API reference
 
 #### **ReactAsync.Mixin**
 
 Components which uses this mixin should define `getInitialStateAsync(cb)` method
 to fetch a part of its state asynchronously.
+
+Optionally components could define `stateToJSON(state)` and
+`stateFromJSON(data)` methods to customize how state serialized and deserialized
+when it's transfered to a browser.
 
 #### **ReactAsync.renderComponentToStringWithAsyncState(component, cb)**
 
