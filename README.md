@@ -222,7 +222,7 @@ Inject `data` into `markup` as JSON blob. Data will be injected as:
 
 This allows to transfer asynchronous state fetched on server to browser. That
 way components in browser won't need to call `getInitialStateAsync(cb)` method
-once more.
+once more on first render.
 
 If `scripts` is passed and is an array then inject `<script src="..."></script>`
 into the `markup` for each element of the array.
