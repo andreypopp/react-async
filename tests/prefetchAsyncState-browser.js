@@ -21,7 +21,7 @@ describe('ReactAsync.prefetchAsyncState (browser)', function() {
     },
 
     render: function() {
-      return React.DOM.div(this.state.message || 'loading...');
+      return React.DOM.div(null, this.state.message || 'loading...');
     }
   });
 
