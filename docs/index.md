@@ -59,6 +59,34 @@ declare `getInitialStateAsync(cb)` method:
 The method `getInitialStateAsync` mimics `getInitialState` but can fetch state
 asynchronously. The result of the function is mixed in into the component state.
 
+## Deferring rendering of async components
+
+If you want to render different async components in the same DOM node and don't
+want to unmount already rendered component unless async state of the next
+component is fetched, there's `<Preloaded />` component which handles that:
+
+    <Preloaded>
+      {this.renderAsyncTabContents({url: this.state.url})
+    </Preloader>
+
+It accepts only a single child and only that single child could be an async
+component. On first render it would render its child as-is but on subsequent
+renders it would defer rendering unless async state is prefetched.
+
+If you want to defer first render unless async state is fetched you should
+provide a `preloader` prop:
+
+    <Preloaded preloader={Spinner()}>
+      {this.renderAsyncTabContents({url: this.state.url})
+    </Preloader>
+
+You also can force preloader on subsequent renders with `alwayUsePreloader`
+prop:
+
+    <Preloaded preloader={Spinner()} alwayUsePreloader>
+      {this.renderAsyncTabContents({url: this.state.url})
+    </Preloader>
+
 ## Rendering async components on server with fetched async state
 
 The problem arises when you want to render UI on server with React.
