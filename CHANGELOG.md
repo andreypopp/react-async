@@ -1,3 +1,8 @@
+## 0.9.0
+
+  - Preloaded component to defer rendering of async components unless their
+    state is available.
+
 ## 0.8.0
 
   - Hooks to serialize/deserialize async state — stateFromJSON/stateToJSON.
