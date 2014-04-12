@@ -31,4 +31,11 @@ describe('ReactAsync.injectIntoMarkup (server)', function() {
     assert.ok(injected.indexOf(markup) > -1);
     assert.ok(injected.indexOf('<script>window.__reactAsyncStatePacket={"foo":"bar"}</script>') > -1);
   });
+
+  it('escapes HTML end tags in JSON before injecting into markup', function() {
+    var data = {foo: '<script></script>'};
+    var markup = '<html><head></head><body>Escape test</body>';
+    var injected = ReactAsync.injectIntoMarkup(markup, data);
+    assert.ok(injected.indexOf('<script><\\/script>') > -1);
+  });
 });
