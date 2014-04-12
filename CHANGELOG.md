@@ -1,3 +1,7 @@
+## 0.9.1
+
+  - proper escaping for JSON data transfered from server to browser
+
 ## 0.9.0
 
   - Preloaded component to defer rendering of async components unless their
