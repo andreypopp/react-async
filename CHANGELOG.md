@@ -1,3 +1,7 @@
+## 0.9.2
+
+  - escape unicode character in JSON data transfered from server to browser
+
 ## 0.9.1
 
   - proper escaping for JSON data transfered from server to browser
