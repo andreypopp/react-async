@@ -41,5 +41,8 @@
   "bugs": {
     "url": "https://github.com/andreypopp/react-async/issues"
   },
-  "homepage": "https://github.com/andreypopp/react-async"
+  "homepage": "https://github.com/andreypopp/react-async",
+  "dependencies": {
+    "ascii-json": "~0.2.0"
+  }
 }
