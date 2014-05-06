@@ -38,4 +38,13 @@ describe('ReactAsync.injectIntoMarkup (server)', function() {
     var injected = ReactAsync.injectIntoMarkup(markup, data);
     assert.ok(injected.indexOf('<script><\\/script>') > -1);
   });
+
+  it('escapes non-ascii characters', function() {
+    var data = {foo: '☺'};
+
+    var markup = '<html><head></head><body>This is an injection test</body>';
+    var injected = ReactAsync.injectIntoMarkup(markup, data);
+
+    assert.ok(injected.indexOf('<script>window.__reactAsyncStatePacket={"foo":"\\u263a"}</script></body>') > -1);
+  })
 });
