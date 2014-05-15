@@ -83,10 +83,42 @@ function renderComponentToStringWithAsyncState(component, cb) {
   }).run();
 }
 
+/**
+ * Prefetch async state recursively and render component markup asynchronously.
+ *
+ * @param {ReactComponent} component
+ * @param {Function<Error, String>} cb
+ */
+function renderComponentToStaticMarkupWithAsyncState(component, cb) {
+
+  try {
+    var Fiber = require('fibers');
+  } catch (err) {
+    console.error('install fibers: npm install fibers');
+    throw err;
+  }
+
+  Fiber(function() { // jshint ignore:line
+    try {
+      Fiber.current.__reactAsyncStatePacket = {};
+
+      var data = Fiber.current.__reactAsyncStatePacket;
+      var markup = React.renderComponentToStaticMarkup(component);
+
+      cb(null, markup);
+    } catch(e) {
+      cb(e)
+    } finally {
+      delete Fiber.current.__reactAsyncStatePacket;
+    }
+  }).run();
+}
+
 module.exports = {
   prefetchAsyncState: require('./lib/prefetchAsyncState'),
   isAsyncComponent: require('./lib/isAsyncComponent'),
   Mixin: Mixin,
   renderComponentToStringWithAsyncState: renderComponentToStringWithAsyncState,
+  renderComponentToStaticMarkupWithAsyncState: renderComponentToStaticMarkupWithAsyncState,
   injectIntoMarkup: injectIntoMarkup
 };
