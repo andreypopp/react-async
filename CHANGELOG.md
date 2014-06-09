@@ -1,3 +1,7 @@
+## 0.9.4
+
+  - expose `<Preloaded />` component directly on `ReactAsync`.
+
 ## 0.9.3
 
   - remove BaseMixin.componentWillReceiveProps so `asyncState` only takes effect
