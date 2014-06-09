@@ -1,3 +1,8 @@
+## 0.9.3
+
+  - remove BaseMixin.componentWillReceiveProps so `asyncState` only takes effect
+    during first render.
+
 ## 0.9.2
 
   - escape unicode character in JSON data transfered from server to browser
