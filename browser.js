@@ -1,6 +1,7 @@
 "use strict";
 
 var BaseMixin               = require('./lib/BaseMixin');
+var Preloaded               = require('./lib/Preloaded');
 var getComponentFingerprint = require('./lib/getComponentFingerprint');
 
 var Mixin = {
@@ -31,5 +32,6 @@ var Mixin = {
 module.exports = {
   prefetchAsyncState: require('./lib/prefetchAsyncState'),
   isAsyncComponent: require('./lib/isAsyncComponent'),
-  Mixin: Mixin
+  Mixin: Mixin,
+  Preloaded: Preloaded
 };

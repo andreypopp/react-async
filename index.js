@@ -3,6 +3,7 @@
 var React                   = require('react');
 var invariant               = require('react/lib/invariant');
 var BaseMixin               = require('./lib/BaseMixin');
+var Preloaded               = require('./lib/Preloaded');
 var getComponentFingerprint = require('./lib/getComponentFingerprint');
 var injectIntoMarkup        = require('./lib/injectIntoMarkup');
 
@@ -87,6 +88,7 @@ module.exports = {
   prefetchAsyncState: require('./lib/prefetchAsyncState'),
   isAsyncComponent: require('./lib/isAsyncComponent'),
   Mixin: Mixin,
+  Preloaded: Preloaded,
   renderComponentToStringWithAsyncState: renderComponentToStringWithAsyncState,
   injectIntoMarkup: injectIntoMarkup
 };
