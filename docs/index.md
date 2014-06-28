@@ -67,7 +67,7 @@ component is fetched, there's `<Preloaded />` component which handles that:
 
     <Preloaded>
       {this.renderAsyncTabContents({url: this.state.url})
-    </Preloader>
+    </Preloaded>
 
 It accepts only a single child and only that single child could be an async
 component. On first render it would render its child as-is but on subsequent
@@ -78,14 +78,14 @@ provide a `preloader` prop:
 
     <Preloaded preloader={Spinner()}>
       {this.renderAsyncTabContents({url: this.state.url})
-    </Preloader>
+    </Preloaded>
 
 You also can force preloader on subsequent renders with `alwayUsePreloader`
 prop:
 
     <Preloaded preloader={Spinner()} alwayUsePreloader>
       {this.renderAsyncTabContents({url: this.state.url})
-    </Preloader>
+    </Preloaded>
 
 ## Rendering async components on server with fetched async state
 
