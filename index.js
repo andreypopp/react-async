@@ -2,15 +2,16 @@
 
 var React                   = require('react');
 var invariant               = require('react/lib/invariant');
-var BaseMixin               = require('./lib/BaseMixin');
 var Preloaded               = require('./lib/Preloaded');
 var getComponentFingerprint = require('./lib/getComponentFingerprint');
 var injectIntoMarkup        = require('./lib/injectIntoMarkup');
 
 var Mixin = {
-  mixins: [BaseMixin],
 
-  getDefaultProps: function() {
+  getInitialState: function() {
+    if (this.props.asyncState) {
+      return this.props.asyncState;
+    }
 
     var Fiber;
 
@@ -32,7 +33,7 @@ var Mixin = {
 
     var Future = require('fibers/future');
 
-    var getInitialStateAsync = Future.wrap(this.getInitialStateAsync.bind(this));
+    var getInitialStateAsync = Future.wrap(function(cb) { this.getInitialStateAsync(cb) }.bind(this));
     var asyncState = getInitialStateAsync().wait();
     var fingerprint = getComponentFingerprint(this);
 
@@ -44,7 +45,7 @@ var Mixin = {
 
     Fiber.current.__reactAsyncStatePacket[fingerprint] = storedAsyncState;
 
-    return {asyncState: asyncState};
+    return asyncState;
   }
 }
 

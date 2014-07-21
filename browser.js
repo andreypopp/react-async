@@ -1,13 +1,17 @@
 "use strict";
 
-var BaseMixin               = require('./lib/BaseMixin');
+var invariant               = require('react/lib/invariant');
+var isAsyncComponent        = require('./lib/isAsyncComponent');
 var Preloaded               = require('./lib/Preloaded');
 var getComponentFingerprint = require('./lib/getComponentFingerprint');
 
 var Mixin = {
-  mixins: [BaseMixin],
 
-  getDefaultProps: function() {
+  getInitialState: function() {
+    if (this.props.asyncState) {
+      return this.props.asyncState;
+    }
+
     if (window.__reactAsyncStatePacket === undefined) {
       return {};
     }
@@ -18,14 +22,37 @@ var Mixin = {
       return {};
     }
 
-    var state = window.__reactAsyncStatePacket[fingerprint];
+    var asyncState = window.__reactAsyncStatePacket[fingerprint];
     delete window.__reactAsyncStatePacket[fingerprint];
 
     if (typeof this.stateFromJSON === 'function') {
-      state = this.stateFromJSON(state);
+      asyncState = this.stateFromJSON(asyncState);
     }
 
-    return {asyncState: state};
+    return asyncState;
+  },
+
+  componentDidMount: function() {
+
+    invariant(
+      typeof this.getInitialStateAsync === 'function',
+      "%s uses ReactAsync.Mixin and should provide getInitialStateAsync(cb) method",
+      this.displayName
+    );
+
+    if (!this.props.asyncState) {
+      this.getInitialStateAsync(this._onStateReady);
+    }
+  },
+
+  _onStateReady: function(err, asyncState) {
+    if (err) {
+      throw err;
+    }
+
+    if (this.isMounted()) {
+      this.setState(asyncState);
+    }
   }
 };
 
