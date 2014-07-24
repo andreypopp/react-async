@@ -1,3 +1,7 @@
+## 0.10.0
+
+  - support for React 0.11
+
 ## 0.9.4
 
   - expose `<Preloaded />` component directly on `ReactAsync`.
