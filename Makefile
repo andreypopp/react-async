@@ -1,7 +1,7 @@
 BIN = ./node_modules/.bin
 PATH := $(BIN):$(PATH)
 
-TEST_SUITES         = $(wildcard tests/*.js)
+TEST_SUITES         = $(wildcard ./tests/*.js)
 TEST_SUITES_COMMON  = $(filter-out %-browser.js %-server.js, $(TEST_SUITES))
 TEST_SUITES_BROWSER = $(filter %-browser.js, $(TEST_SUITES))
 TEST_SUITES_SERVER  = $(filter %-server.js, $(TEST_SUITES))
@@ -15,12 +15,10 @@ lint:
 test:: test-server test-browser
 
 test-server::
-	@mocha -R spec $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
+	@mocha $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
 
 test-browser:
-	@browserify -d -p [ mocaccino -R spec ] \
-		$(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER) \
-		| phantomic
+	@mochify $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER) \
 
 example::
 	@node-dev --no-deps example/server.js
