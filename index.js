@@ -23,9 +23,9 @@ var Mixin = {
 
     }
 
-    if (Fiber === undefined
-        || Fiber.current === undefined
-        || Fiber.current.__reactAsyncStatePacket === undefined) {
+    if (Fiber === undefined ||
+        Fiber.current === undefined ||
+        Fiber.current.__reactAsyncStatePacket === undefined) {
       return {};
     }
 
