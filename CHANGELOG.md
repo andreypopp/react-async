@@ -1,3 +1,7 @@
+## 0.10.1
+
+  - fix React.renderComponentToString inside Fiber but.
+
 ## 0.10.0
 
   - support for React 0.11
