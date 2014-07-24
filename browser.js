@@ -13,12 +13,14 @@ var Mixin = {
     }
 
     if (window.__reactAsyncStatePacket === undefined) {
+      this._fetchAsyncState = true;
       return {};
     }
 
     var fingerprint = getComponentFingerprint(this);
 
     if (window.__reactAsyncStatePacket[fingerprint] === undefined) {
+      this._fetchAsyncState = true;
       return {};
     }
 
@@ -40,9 +42,13 @@ var Mixin = {
       this.displayName
     );
 
-    if (!this.props.asyncState) {
+    if (this._fetchAsyncState) {
       this.getInitialStateAsync(this._onStateReady);
     }
+  },
+
+  componentWillUnmount: function() {
+    delete this._fetchAsyncState;
   },
 
   _onStateReady: function(err, asyncState) {

@@ -74,7 +74,7 @@ describe('ReactAsync.Mixin (browser)', function() {
 
     var Component = React.createClass({
 
-      mixins: [ReactAsync.Mixin],
+      mixins: [InjectData, ReactAsync.Mixin],
 
       getInitialStateAsync: function(cb) {
         called += 1;
@@ -91,7 +91,7 @@ describe('ReactAsync.Mixin (browser)', function() {
       }
     });
 
-    c = Component({asyncState: {message: 'hello'}});
+    c = Component();
 
 
     c = ReactTestUtils.renderIntoDocument(c);
