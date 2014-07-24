@@ -5,6 +5,8 @@ var invariant               = require('react/lib/invariant');
 var Preloaded               = require('./lib/Preloaded');
 var getComponentFingerprint = require('./lib/getComponentFingerprint');
 var injectIntoMarkup        = require('./lib/injectIntoMarkup');
+var prefetchAsyncState      = require('./lib/prefetchAsyncState');
+var isAsyncComponent        = require('./lib/isAsyncComponent');
 
 var Mixin = {
 
@@ -86,8 +88,8 @@ function renderComponentToStringWithAsyncState(component, cb) {
 }
 
 module.exports = {
-  prefetchAsyncState: require('./lib/prefetchAsyncState'),
-  isAsyncComponent: require('./lib/isAsyncComponent'),
+  prefetchAsyncState: prefetchAsyncState,
+  isAsyncComponent: isAsyncComponent,
   Mixin: Mixin,
   Preloaded: Preloaded,
   renderComponentToStringWithAsyncState: renderComponentToStringWithAsyncState,
