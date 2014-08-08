@@ -1,3 +1,7 @@
+## 1.0.0
+
+  - Add support for returning promise from getInitialStateAsync.
+
 ## 0.10.1
 
   - fix React.renderComponentToString inside Fiber but.
