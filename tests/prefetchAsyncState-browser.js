@@ -2,6 +2,7 @@ var assert          = require('assert');
 var React           = require('react');
 var ReactTestUtils  = require('react/lib/ReactTestUtils');
 var ReactAsync      = require('../');
+var when            = require('when');
 
 function wait(ms, cb) {
   setTimeout(cb, ms);
@@ -10,6 +11,10 @@ function wait(ms, cb) {
 describe('ReactAsync.prefetchAsyncState (browser)', function() {
 
   var c, called;
+
+  var render = function() {
+    return React.DOM.div(null, this.state.message || 'loading...');
+  };
 
   var Component = React.createClass({
 
@@ -20,9 +25,19 @@ describe('ReactAsync.prefetchAsyncState (browser)', function() {
       wait(10, function() { cb(null, {message: 'hello'}); });
     },
 
-    render: function() {
-      return React.DOM.div(null, this.state.message || 'loading...');
-    }
+    render: render
+  });
+
+  var PromiseComponent = React.createClass({
+
+    mixins: [ReactAsync.Mixin],
+
+    getInitialStateAsync: function(cb) {
+      called += 1;
+      return when.resolve({message: 'hellofrompromise'}).delay(10);
+    },
+
+    render: render
   });
 
   beforeEach(function() {
@@ -38,6 +53,19 @@ describe('ReactAsync.prefetchAsyncState (browser)', function() {
       wait(40, function() {
         assert.equal(called, 1);
         assert.deepEqual(c.state, {message: 'hello'});
+        done();
+      });
+    });
+  });
+
+  it('prefetches async state with promise', function(done) {
+    c = PromiseComponent();
+    ReactAsync.prefetchAsyncState(c, function(err, c) {
+      assert.equal(called, 1);
+      c = ReactTestUtils.renderIntoDocument(c);
+      wait(40, function() {
+        assert.equal(called, 1);
+        assert.deepEqual(c.state, {message: 'hellofrompromise'});
         done();
       });
     });
