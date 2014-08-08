@@ -3,6 +3,7 @@ var React                   = require('react');
 var ReactTestUtils          = require('react/lib/ReactTestUtils');
 var ReactAsync              = require('../');
 var getComponentFingerprint = require('../lib/getComponentFingerprint');
+var when                    = require('when');
 
 function wait(ms, cb) {
   setTimeout(cb, ms);
@@ -11,6 +12,10 @@ function wait(ms, cb) {
 describe('ReactAsync.Mixin (browser)', function() {
 
   var called, c;
+
+  var render = function() {
+    return React.DOM.div(null, this.state.message || 'loading...');
+  };
 
   var Component = React.createClass({
 
@@ -21,9 +26,19 @@ describe('ReactAsync.Mixin (browser)', function() {
       wait(10, function() { cb(null, {message: 'hello'}); });
     },
 
-    render: function() {
-      return React.DOM.div(this.state.message || 'loading...');
-    }
+    render: render
+  });
+
+  var PromiseComponent = React.createClass({
+
+    mixins: [ReactAsync.Mixin],
+
+    getInitialStateAsync: function(cb) {
+      called += 1;
+      return when.resolve({message: 'hellofrompromise'}).delay(10);
+    },
+
+    render: render
   });
 
   beforeEach(function() {
@@ -38,6 +53,17 @@ describe('ReactAsync.Mixin (browser)', function() {
     wait(50, function() {
       assert.equal(called, 1);
       assert.deepEqual(c.state, {message: 'hello'});
+      done();
+    });
+  });
+
+  it('fetches state via getInitialStateAsync returning a promise', function(done) {
+    c = PromiseComponent();
+    c = ReactTestUtils.renderIntoDocument(c);
+    assert.deepEqual(c.state, {});
+    wait(50, function() {
+      assert.equal(called, 1);
+      assert.deepEqual(c.state, {message: 'hellofrompromise'});
       done();
     });
   });

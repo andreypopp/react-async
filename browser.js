@@ -44,7 +44,12 @@ var Mixin = {
     );
 
     if (this._fetchAsyncState) {
-      this.getInitialStateAsync(this._onStateReady);
+      var cb = this._onStateReady;
+      var promise = this.getInitialStateAsync(cb);
+
+      if (promise && promise.then) {
+        promise.then(cb.bind(this, null), cb);
+      }
     }
   },
 

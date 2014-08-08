@@ -27,6 +27,7 @@ describe('React.renderComponentToString (server)', function() {
     Fiber(function() {
       var markup = React.renderComponentToString(Async());
       assert(markup.indexOf('<div') > -1);
+      assert(markup.indexOf('hello') === -1);
     }).run();
   });
 });
