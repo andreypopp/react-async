@@ -35,7 +35,7 @@ describe('ReactAsync.Mixin (browser)', function() {
 
     getInitialStateAsync: function(cb) {
       called += 1;
-      return when.resolve({message: 'hellofrompromise'}).delay(40);
+      return when.resolve({message: 'hellofrompromise'}).delay(10);
     },
 
     render: render
