@@ -2,6 +2,7 @@ var assert                  = require('assert');
 var React                   = require('react');
 var ReactAsync              = require('../index');
 var getComponentFingerprint = require('../lib/getComponentFingerprint');
+var when                    = require('when');
 
 var div = React.DOM.div;
 
@@ -33,6 +34,18 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     }
   });
 
+  var AsyncWithPromise = React.createClass({
+    mixins: [ReactAsync.Mixin],
+
+    getInitialStateAsync: function() {
+      return when.resolve({message: 'hellofrompromise'});
+    },
+
+    render: function() {
+      return this.transferPropsTo(div(null, this.state.message));
+    }
+  });
+
   it('fetches state before rendering a component', function(done) {
 
     var c = Async();
@@ -49,6 +62,27 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
       var state = data[id];
       assert.ok(state);
       assert.deepEqual(state, {message: 'hello'});
+
+      done();
+    });
+  });
+
+  it('fetches state with promise before rendering a component', function(done) {
+
+    var c = AsyncWithPromise();
+
+    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+      if (err) return done(err);
+
+      var async = c;
+      assert.ok(async);
+      assert.ok(markup.indexOf('hello') > -1);
+
+      assert.equal(Object.keys(data).length, 1)
+      var id = Object.keys(data)[0];
+      var state = data[id];
+      assert.ok(state);
+      assert.deepEqual(state, {message: 'hellofrompromise'});
 
       done();
     });

@@ -37,7 +37,13 @@ var Mixin = {
 
     var Future = require('fibers/future');
 
-    var getInitialStateAsync = Future.wrap(function(cb) { this.getInitialStateAsync(cb) }.bind(this));
+    var getInitialStateAsync = Future.wrap(function(cb) {
+      var promise = this.getInitialStateAsync(cb);
+
+      if (promise && typeof promise.then === 'function') {
+        promise.then(cb.bind(cb, null), cb);
+      }
+    }.bind(this));
     var asyncState = getInitialStateAsync().wait();
     var fingerprint = getComponentFingerprint(this);
 
