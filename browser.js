@@ -63,7 +63,7 @@ var Mixin = {
     }
 
     if (this.isMounted()) {
-      this.setState(asyncState);
+      this.setState(asyncState || {});
     }
   }
 };

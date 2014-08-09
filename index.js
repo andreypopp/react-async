@@ -55,7 +55,7 @@ var Mixin = {
 
     Fiber.current.__reactAsyncStatePacket[fingerprint] = storedAsyncState;
 
-    return asyncState;
+    return asyncState || {};
   }
 }
 
