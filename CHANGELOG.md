@@ -1,3 +1,7 @@
+## 1.0.1
+
+  - Avoid setting an empty state (set `{}` in that case).
+
 ## 1.0.0
 
   - Add support for returning promise from getInitialStateAsync.
