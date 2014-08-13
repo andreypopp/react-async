@@ -42,6 +42,8 @@ var Mixin = {
 
       if (promise && typeof promise.then === 'function') {
         promise.then(cb.bind(cb, null), cb);
+      } else if (promise === false) {
+        cb(null);
       }
     }.bind(this));
     var asyncState = getInitialStateAsync().wait();
