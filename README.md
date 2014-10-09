@@ -1,5 +1,13 @@
 # React Async
 
+**WARNING:** Keeping data in React component's state is a bad idea. React
+component's state is for purely UI state, like "if this dropdown openned or
+closed?". In light of that, React Async is an anti-pattern so you shouldn't use
+it unless you are 100% sure you need it. There are better patterns to keep
+dataflow organized in React apps, check [Flux][], for example.
+
+[Flux]: http://facebook.github.io/flux/
+
 React Async is an addon for React which allows to define and render components
 which require a part of its state to be fetched via an asynchronous method (for
 example using an XHR request to get data from a server).
