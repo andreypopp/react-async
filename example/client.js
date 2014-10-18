@@ -36,7 +36,7 @@ var Nested = React.createClass({
 });
 
 if (typeof window !== 'undefined') {
-  React.renderComponent(React.createElement(App), document);
+  React.render(React.createElement(App), document);
 }
 
 module.exports = App;

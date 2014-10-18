@@ -67,7 +67,7 @@ var Mixin = {
  * @param {ReactComponent} component
  * @param {Function<Error, String, Object>} cb
  */
-function renderComponentToStringWithAsyncState(component, cb) {
+function renderToStringAsync(component, cb) {
 
   try {
     var Fiber = require('fibers');
@@ -97,11 +97,25 @@ function renderComponentToStringWithAsyncState(component, cb) {
   }).run();
 }
 
+var renderComponentToStringWithAsyncState_deprecationWarned = false;
+
+function renderComponentToStringWithAsyncState(component, cb) {
+  if (!renderComponentToStringWithAsyncState_deprecationWarned) {
+    renderComponentToStringWithAsyncState_deprecationWarned = true;
+    console.warn(
+      'Warning: ReactAsync.renderComponentToStringWithAsyncState will be ' +
+      'deprecated in a future version. Use ReactAsync.renderToStringAsync instead.'
+    );
+  }
+  return renderToStringAsync(component, cb);
+}
+
 module.exports = {
   prefetchAsyncState: prefetchAsyncState,
   isAsyncComponent: isAsyncComponent,
   Mixin: Mixin,
   Preloaded: Preloaded,
   renderComponentToStringWithAsyncState: renderComponentToStringWithAsyncState,
+  renderToStringAsync: renderToStringAsync,
   injectIntoMarkup: injectIntoMarkup
 };

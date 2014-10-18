@@ -7,7 +7,7 @@ var App         = require('./client');
 express()
   .get('/bundle.js', browserify(__dirname + '/client', {debug: true, watch: true}))
   .get('/', function(req, res, next) {
-    ReactAsync.renderComponentToStringWithAsyncState(
+    ReactAsync.renderToStringAsync(
       React.createElement(App),
       function(err, markup, data) {
         if (err) return next(err);

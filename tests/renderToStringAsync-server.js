@@ -12,7 +12,7 @@ function asyncState(state) {
   }
 }
 
-describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function() {
+describe('ReactAsync.renderToStringAsync (server)', function() {
 
   var Async = React.createClass({
     mixins: [ReactAsync.Mixin],
@@ -50,7 +50,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
     var c = React.createElement(Async);
 
-    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+    ReactAsync.renderToStringAsync(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c;
@@ -71,7 +71,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
     var c = React.createElement(AsyncWithPromise);
 
-    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+    ReactAsync.renderToStringAsync(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c;
@@ -97,7 +97,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     });
 
     var c = React.createElement(Outer);
-    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+    ReactAsync.renderToStringAsync(c, function(err, markup, data) {
       if (err) return done(err);
 
       assert.ok(markup.indexOf('hello') > -1);
@@ -123,7 +123,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     });
 
     var outer = React.createElement(OuterAsync);
-    ReactAsync.renderComponentToStringWithAsyncState(outer, function(err, markup, data) {
+    ReactAsync.renderToStringAsync(outer, function(err, markup, data) {
       if (err) return done(err);
 
       assert.ok(markup.indexOf('hello') > -1);
@@ -138,7 +138,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
     var c = React.createElement(AsyncApp);
 
-    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup) {
+    ReactAsync.renderToStringAsync(c, function(err, markup) {
       if (err) return done(err);
 
       var async = c;
@@ -155,7 +155,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
   it('should not inject state when three callback arguments are provided', function(done) {
     var c = React.createElement(AsyncApp);
 
-    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+    ReactAsync.renderToStringAsync(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c;
@@ -186,7 +186,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
     var c = React.createElement(C, {a: '42state'});
 
-    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+    ReactAsync.renderToStringAsync(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c;
@@ -230,7 +230,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
     var c = React.createElement(C);
 
-    ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
+    ReactAsync.renderToStringAsync(c, function(err, markup, data) {
       if (err) return done(err);
 
       var async = c;
