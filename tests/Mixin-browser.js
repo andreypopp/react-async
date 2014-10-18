@@ -47,7 +47,7 @@ describe('ReactAsync.Mixin (browser)', function() {
   });
 
   it('fetches state via getInitialStateAsync', function(done) {
-    c = Component();
+    c = React.createElement(Component);
     c = ReactTestUtils.renderIntoDocument(c);
     assert.deepEqual(c.state, {});
     wait(50, function() {
@@ -58,7 +58,7 @@ describe('ReactAsync.Mixin (browser)', function() {
   });
 
   it('fetches state via getInitialStateAsync returning a promise', function(done) {
-    c = PromiseComponent();
+    c = React.createElement(PromiseComponent);
     c = ReactTestUtils.renderIntoDocument(c);
     assert.deepEqual(c.state, {});
     wait(50, function() {
@@ -69,7 +69,7 @@ describe('ReactAsync.Mixin (browser)', function() {
   });
 
   it('injects async state via asyncState prop', function(done) {
-    c = Component({asyncState: {message: 'injected'}});
+    c = React.createElement(Component, {asyncState: {message: 'injected'}});
     c = ReactTestUtils.renderIntoDocument(c);
     assert.deepEqual(c.state, {message: 'injected'});
     wait(50, function() {
@@ -117,7 +117,7 @@ describe('ReactAsync.Mixin (browser)', function() {
       }
     });
 
-    c = Component();
+    c = React.createElement(Component);
 
 
     c = ReactTestUtils.renderIntoDocument(c);

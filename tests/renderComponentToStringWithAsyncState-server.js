@@ -20,7 +20,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     getInitialStateAsync: asyncState({message: 'hello'}),
 
     render: function() {
-      return this.transferPropsTo(div(null, this.state.message));
+      return div({className: this.props.className}, this.state.message);
     }
   });
 
@@ -42,13 +42,13 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
     },
 
     render: function() {
-      return this.transferPropsTo(div(null, this.state.message));
+      return div(null, this.state.message);
     }
   });
 
   it('fetches state before rendering a component', function(done) {
 
-    var c = Async();
+    var c = React.createElement(Async);
 
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
@@ -69,7 +69,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
   it('fetches state with promise before rendering a component', function(done) {
 
-    var c = AsyncWithPromise();
+    var c = React.createElement(AsyncWithPromise);
 
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
@@ -92,11 +92,11 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
     var Outer = React.createClass({
       render: function() {
-        return Async({ref: 'async'});
+        return React.createElement(Async, {ref: 'async'});
       }
     });
 
-    var c = Outer();
+    var c = React.createElement(Outer);
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
 
@@ -118,11 +118,11 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
       mixins: [ReactAsync.Mixin],
       getInitialStateAsync: asyncState({className: 'outer'}),
       render: function() {
-        return Async({className: this.state.className});
+        return React.createElement(Async, {className: this.state.className});
       }
     });
 
-    var outer = OuterAsync();
+    var outer = React.createElement(OuterAsync);
     ReactAsync.renderComponentToStringWithAsyncState(outer, function(err, markup, data) {
       if (err) return done(err);
 
@@ -136,7 +136,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
 
   it('should automatically inject state when only two callback arguments are provided', function(done) {
 
-    var c = AsyncApp();
+    var c = React.createElement(AsyncApp);
 
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup) {
       if (err) return done(err);
@@ -153,7 +153,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
   })
 
   it('should not inject state when three callback arguments are provided', function(done) {
-    var c = AsyncApp();
+    var c = React.createElement(AsyncApp);
 
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
@@ -184,7 +184,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
       }
     });
 
-    var c = C({a: '42state'});
+    var c = React.createElement(C, {a: '42state'});
 
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);
@@ -228,7 +228,7 @@ describe('ReactAsync.renderComponentToStringWithAsyncState (server)', function()
       }
     });
 
-    var c = C();
+    var c = React.createElement(C);
 
     ReactAsync.renderComponentToStringWithAsyncState(c, function(err, markup, data) {
       if (err) return done(err);

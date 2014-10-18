@@ -17,7 +17,7 @@ var App = React.createClass({
     return React.DOM.html(null,
       React.DOM.body(null,
         React.DOM.div(null, this.state.message || 'Loading...'),
-        Nested()));
+        React.createElement(Nested)));
   }
 });
 
@@ -36,7 +36,7 @@ var Nested = React.createClass({
 });
 
 if (typeof window !== 'undefined') {
-  React.renderComponent(App(), document);
+  React.renderComponent(React.createElement(App), document);
 }
 
 module.exports = App;

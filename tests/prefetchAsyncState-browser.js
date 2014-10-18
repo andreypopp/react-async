@@ -46,7 +46,7 @@ describe('ReactAsync.prefetchAsyncState (browser)', function() {
   });
 
   it('prefetches async state', function(done) {
-    c = Component();
+    c = React.createElement(Component);
     ReactAsync.prefetchAsyncState(c, function(err, c) {
       assert.equal(called, 1);
       c = ReactTestUtils.renderIntoDocument(c);
@@ -59,7 +59,7 @@ describe('ReactAsync.prefetchAsyncState (browser)', function() {
   });
 
   it('prefetches async state with promise', function(done) {
-    c = PromiseComponent();
+    c = React.createElement(PromiseComponent);
     ReactAsync.prefetchAsyncState(c, function(err, c) {
       assert.equal(called, 1);
       c = ReactTestUtils.renderIntoDocument(c);

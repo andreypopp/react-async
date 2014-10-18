@@ -76,7 +76,7 @@ describe('Preloaded (browser)', function() {
   describe('using no preloader component', function() {
 
     function create() {
-      var c = Preloaded(null, Component());
+      var c = React.createElement(Preloaded, null, React.createElement(Component));
       c = ReactTestUtils.renderIntoDocument(c);
       return c;
     }
@@ -103,7 +103,7 @@ describe('Preloaded (browser)', function() {
       assert.equal(markup(), 'loading...');
       wait(30, function() {
         assert.equal(markup(), 'hello');
-        c.setProps({children: Component({message: '!'})});
+        c.setProps({children: React.createElement(Component, {message: '!'})});
 
         assert.equal(markup(), 'hello!');
 
@@ -123,7 +123,7 @@ describe('Preloaded (browser)', function() {
       assert.equal(markup(), 'loading...');
       wait(30, function() {
         assert.equal(markup(), 'hello');
-        c.setProps({children: AnotherComponent({message: '?'})});
+        c.setProps({children: React.createElement(AnotherComponent, {message: '?'})});
         assert.equal(markup(), 'hello');
         wait(30, function() {
           assert.equal(markup(), '?hello');
@@ -150,9 +150,9 @@ describe('Preloaded (browser)', function() {
       assert.equal(markup(), 'loading...');
       wait(30, function() {
         assert.equal(markup(), 'hello');
-        c.setProps({children: AnotherComponent({message: '?'})});
+        c.setProps({children: React.createElement(AnotherComponent, {message: '?'})});
         assert.equal(markup(), 'hello');
-        c.setProps({children: Component({message: '!!'})});
+        c.setProps({children: React.createElement(Component, {message: '!!'})});
         assert.equal(markup(), 'hello!!');
         wait(30, function() {
           assert.equal(markup(), 'hello!!');
@@ -178,7 +178,10 @@ describe('Preloaded (browser)', function() {
   describe('using with preloader component', function() {
 
     function create() {
-      var c = Preloaded({preloader: Preloader()}, Component());
+      var c = React.createElement(
+        Preloaded,
+        {preloader: React.createElement(Preloader)},
+        React.createElement(Component));
       c = ReactTestUtils.renderIntoDocument(c);
       return c;
     }
@@ -205,7 +208,7 @@ describe('Preloaded (browser)', function() {
       assert.equal(markup(), 'preloader');
       wait(30, function() {
         assert.equal(markup(), 'hello');
-        c.setProps({children: Component({message: '!'})});
+        c.setProps({children: React.createElement(Component, {message: '!'})});
 
         assert.equal(markup(), 'hello!');
 
@@ -225,7 +228,7 @@ describe('Preloaded (browser)', function() {
       assert.equal(markup(), 'preloader');
       wait(30, function() {
         assert.equal(markup(), 'hello');
-        c.setProps({children: AnotherComponent({message: '?'})});
+        c.setProps({children: React.createElement(AnotherComponent, {message: '?'})});
         assert.equal(markup(), 'hello');
         wait(30, function() {
           assert.equal(markup(), '?hello');
@@ -252,9 +255,10 @@ describe('Preloaded (browser)', function() {
   describe('using with preloader component to always show it', function() {
 
     function create() {
-      var c = Preloaded(
-        {preloader: Preloader(), alwayUsePreloader: true},
-        Component());
+      var c = React.createElement(
+        Preloaded,
+        {preloader: React.createElement(Preloader), alwayUsePreloader: true},
+        React.createElement(Component));
       c = ReactTestUtils.renderIntoDocument(c);
       return c;
     }
@@ -281,7 +285,7 @@ describe('Preloaded (browser)', function() {
       assert.equal(markup(), 'preloader');
       wait(30, function() {
         assert.equal(markup(), 'hello');
-        c.setProps({children: Component({message: '!'})});
+        c.setProps({children: React.createElement(Component, {message: '!'})});
 
         assert.equal(markup(), 'hello!');
 
@@ -301,7 +305,7 @@ describe('Preloaded (browser)', function() {
       assert.equal(markup(), 'preloader');
       wait(30, function() {
         assert.equal(markup(), 'hello');
-        c.setProps({children: AnotherComponent({message: '?'})});
+        c.setProps({children: React.createElement(AnotherComponent, {message: '?'})});
         assert.equal(markup(), 'preloader');
         wait(30, function() {
           assert.equal(markup(), '?hello');

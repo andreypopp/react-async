@@ -19,13 +19,13 @@ describe('React.renderComponentToString (server)', function() {
     getInitialStateAsync: asyncState({message: 'hello'}),
 
     render: function() {
-      return this.transferPropsTo(div(null, this.state.message));
+      return div(null, this.state.message);
     }
   });
 
   it('works inside Fiber', function() {
     Fiber(function() {
-      var markup = React.renderComponentToString(Async());
+      var markup = React.renderToString(React.createElement(Async));
       assert(markup.indexOf('<div') > -1);
       assert(markup.indexOf('hello') === -1);
     }).run();

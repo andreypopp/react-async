@@ -18,8 +18,8 @@ var Component = React.createClass({
 describe('ReactAsync.isAsyncComponent', function() {
 
   it('works', function() {
-    assert(ReactAsync.isAsyncComponent(Component()));
+    assert(ReactAsync.isAsyncComponent(React.createElement(Component)));
     var NonAsync = React.createClass({render: function() {}});
-    assert(!ReactAsync.isAsyncComponent(NonAsync()));
+    assert(!ReactAsync.isAsyncComponent(React.createElement(NonAsync)));
   });
 });

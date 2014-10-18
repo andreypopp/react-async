@@ -81,7 +81,7 @@ function renderComponentToStringWithAsyncState(component, cb) {
       Fiber.current.__reactAsyncStatePacket = {};
 
       var data = Fiber.current.__reactAsyncStatePacket;
-      var markup = React.renderComponentToString(component);
+      var markup = React.renderToString(component);
 
       // Inject data if callback doesn't receive the data argument
       if (cb.length == 2) {
