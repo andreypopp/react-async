@@ -8,20 +8,20 @@
     "react": "~0.12.0-rc1"
   },
   "devDependencies": {
-    "browserify": "^3.32.1",
-    "browserify-shim": "^3.3.1",
-    "connect-browserify": "~1.0.0",
-    "express": "~3.4.8",
+    "browserify": "^6.1.0",
+    "browserify-shim": "^3.8.0",
+    "connect-browserify": "~3.2.1",
+    "express": "~4.9.8",
     "fibers": "~1.0.1",
-    "jshint": "~2.4.3",
-    "mocha": "~1.17.1",
-    "mochify": "^0.11.1",
-    "node-dev": "~2.1.6",
-    "phantomjs": "^1.9.7-1",
+    "jshint": "~2.5.6",
+    "mocha": "~1.21.5",
+    "mochify": "^1.4.0",
+    "node-dev": "~2.6.0",
+    "phantomjs": "^1.9.11",
     "react": "~0.12.0-rc1",
-    "semver": "~2.2.1",
-    "uglify-js": "^2.4.13",
-    "when": "^3.4.3"
+    "semver": "~4.1.0",
+    "uglify-js": "^2.4.15",
+    "when": "^3.5.0"
   },
   "scripts": {
     "test": "make test"

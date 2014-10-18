@@ -14,7 +14,7 @@ lint:
 test:: test-server test-browser
 
 test-server::
-	@$(BIN)/mocha $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
+	@$(BIN)/mocha -R dot $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
 
 test-browser:
 	@$(BIN)/mochify $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER) \
