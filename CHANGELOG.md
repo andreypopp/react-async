@@ -1,3 +1,15 @@
+## 2.0.0 (unreleased)
+
+  - React Async is now compatible with React >= 0.12.0 only.
+
+  - `ReactAsync.renderComponentToStringWithAsyncState` is renamed to
+    `ReactAsync.renderToStringAsync`. The old name still works but issues a
+    deprecation warning.
+
+## 1.0.2
+
+  - Setting empty async state when getInitialStateAsync returns `false`
+
 ## 1.0.1
 
   - Avoid setting an empty state (set `{}` in that case).

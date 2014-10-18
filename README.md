@@ -55,13 +55,13 @@ declare `getInitialStateAsync(cb)` method:
     var Component = React.createClass({
       mixins: [ReactAsync.Mixin],
 
-      getInitialStateAsync: function(cb) {
+      getInitialStateAsync(cb) {
         xhr('/api/data', function(data) {
           cb(null, data)
         }.bind(this))
       },
 
-      render: function() { ... }
+      render() { ... }
     })
 
 The method `getInitialStateAsync` mimics `getInitialState` but can fetch state
@@ -84,14 +84,14 @@ renders it would defer rendering unless async state is prefetched.
 If you want to defer first render unless async state is fetched you should
 provide a `preloader` prop:
 
-    <Preloaded preloader={Spinner()}>
+    <Preloaded preloader={<Spinner />}>
       {this.renderAsyncTabContents({url: this.state.url})
     </Preloaded>
 
 You also can force preloader on subsequent renders with `alwayUsePreloader`
 prop:
 
-    <Preloaded preloader={Spinner()} alwayUsePreloader>
+    <Preloaded preloader={<Spinner />} alwayUsePreloader>
       {this.renderAsyncTabContents({url: this.state.url})
     </Preloaded>
 
@@ -99,11 +99,11 @@ prop:
 
 The problem arises when you want to render UI on server with React.
 
-While React provides `renderComponentToString` function which can produce markup
+While React provides `renderToString` function which can produce markup
 for a component, this function is synchronous. That means that it can't be used
 when you want to get markup from server populated with data.
 
-React Async provides another function `renderComponentToStringWithAsyncState`
+React Async provides another function `renderToStringAsync`
 which is asynchronous and triggers `getInitialStateAsync` calls in the component
 hierarchy.
 
@@ -113,8 +113,8 @@ First, you'd need to install `fibers` package from npm to use that function:
 
 Then use it like:
 
-    ReactAsync.renderComponentToStringWithAsyncState(
-      Component(),
+    ReactAsync.renderToStringAsync(
+      <Component />,
       function(err, markup) {
         // send markup to browser
       })
@@ -125,11 +125,11 @@ hierarchy.
 ### Manually injecting fetched state
 
 If you'd need more control over how state is injected into your markup you can
-pass a third argument to the `renderComponentToStringWithAsyncState` callback
+pass a third argument to the `renderToStringAsync` callback
 function which contains a snapshot of the current server state:
 
-    ReactAsync.renderComponentToStringWithAsyncState(
-      Component(),
+    ReactAsync.renderToStringAsync(
+      <Component />,
       function(err, markup, data) {
         ...
       })
@@ -139,8 +139,8 @@ In addition to injecting the current server state, `injectIntoMarkup` can also
 reference your client script bundles ensuring server state is available before
 they are run:
 
-    ReactAsync.renderComponentToStringWithAsyncState(
-      Component(),
+    ReactAsync.renderToStringAsync(
+      <Component />,
       function(err, markup, data) {
         res.send(ReactAsync.injectIntoMarkup(markup, data, ['./client.js']))
       })
@@ -213,7 +213,7 @@ Optionally components could define `stateToJSON(state)` and
 `stateFromJSON(data)` methods to customize how state serialized and deserialized
 when it's transfered to a browser.
 
-#### **ReactAsync.renderComponentToStringWithAsyncState(component, cb)**
+#### **ReactAsync.renderToStringAsync(component, cb)**
 
 Renders component to a markup string while  calling `getInitialStateAsync(cb)`
 method of asynchronous components in the component hierarchy.
