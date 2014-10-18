@@ -1,5 +1,4 @@
 BIN = ./node_modules/.bin
-PATH := $(BIN):$(PATH)
 
 TEST_SUITES         = $(wildcard ./tests/*.js)
 TEST_SUITES_COMMON  = $(filter-out %-browser.js %-server.js, $(TEST_SUITES))
@@ -10,18 +9,18 @@ install link:
 	@npm $@
 
 lint:
-	@jshint --verbose *.js lib/*.js
+	@$(BIN)/jshint --verbose *.js lib/*.js
 
 test:: test-server test-browser
 
 test-server::
-	@mocha $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
+	@$(BIN)/mocha $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
 
 test-browser:
-	@mochify $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER) \
+	@$(BIN)/mochify $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER) \
 
 example::
-	@node-dev --no-deps example/server.js
+	@$(BIN)/node-dev --no-deps example/server.js
 
 release-patch: test lint
 	@$(call release,patch)
