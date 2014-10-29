@@ -22,4 +22,8 @@ describe('ReactAsync.isAsyncComponent', function() {
     var NonAsync = React.createClass({render: function() {}});
     assert(!ReactAsync.isAsyncComponent(React.createElement(NonAsync)));
   });
+
+  it('returns false for DOM components', function() {
+    assert(!ReactAsync.isAsyncComponent(React.createElement('div')));
+  });
 });
