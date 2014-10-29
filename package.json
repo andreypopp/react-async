@@ -1,11 +1,11 @@
 {
   "name": "react-async",
-  "version": "2.0.0-dev",
+  "version": "2.0.0",
   "description": "React addon to render async components on server",
   "main": "index.js",
   "browser": "browser.js",
   "peerDependencies": {
-    "react": "~0.12.0-rc1"
+    "react": "~0.12.0"
   },
   "devDependencies": {
     "browserify": "^6.1.0",
@@ -18,7 +18,7 @@
     "mochify": "^1.4.0",
     "node-dev": "~2.6.0",
     "phantomjs": "^1.9.11",
-    "react": "~0.12.0-rc1",
+    "react": "~0.12.0",
     "semver": "~4.1.0",
     "uglify-js": "^2.4.15",
     "when": "^3.5.0"
