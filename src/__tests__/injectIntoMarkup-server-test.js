@@ -8,7 +8,7 @@ describe('ReactAsync.injectIntoMarkup (server)', function() {
     var markup = '<html><head></head><body>This is an injection test</body>';
     var injected = ReactAsync.injectIntoMarkup(markup, data);
 
-    assert.ok(injected.indexOf('<script>window.__reactAsyncStatePacket={"foo":"bar"}</script></body>') > -1);
+    assert.ok(injected.indexOf('<script>window.__reactAsyncDataPacket__ = {"foo":"bar"}</script></body>') > -1);
   })
 
   it('injects data and scripts into markup', function() {
@@ -18,7 +18,7 @@ describe('ReactAsync.injectIntoMarkup (server)', function() {
     var markup = '<html><head></head><body>This is another injection test</body>';
     var injected = ReactAsync.injectIntoMarkup(markup, data, scripts);
 
-    assert.ok(injected.indexOf('<script>window.__reactAsyncStatePacket={"foo":"bar"}</script>') > -1)
+    assert.ok(injected.indexOf('<script>window.__reactAsyncDataPacket__ = {"foo":"bar"}</script>') > -1)
     assert.ok(injected.indexOf('<script src="./a.js"></script>') > -1)
     assert.ok(injected.indexOf('<script src="./b.js"></script></body>') > -1)
   });
@@ -29,7 +29,7 @@ describe('ReactAsync.injectIntoMarkup (server)', function() {
 
     var injected = ReactAsync.injectIntoMarkup(markup, data);
     assert.ok(injected.indexOf(markup) > -1);
-    assert.ok(injected.indexOf('<script>window.__reactAsyncStatePacket={"foo":"bar"}</script>') > -1);
+    assert.ok(injected.indexOf('<script>window.__reactAsyncDataPacket__ = {"foo":"bar"}</script>') > -1);
   });
 
   it('escapes HTML end tags in JSON before injecting into markup', function() {
@@ -45,6 +45,6 @@ describe('ReactAsync.injectIntoMarkup (server)', function() {
     var markup = '<html><head></head><body>This is an injection test</body>';
     var injected = ReactAsync.injectIntoMarkup(markup, data);
 
-    assert.ok(injected.indexOf('<script>window.__reactAsyncStatePacket={"foo":"\\u263a"}</script></body>') > -1);
+    assert.ok(injected.indexOf('<script>window.__reactAsyncDataPacket__ = {"foo":"\\u263a"}</script></body>') > -1);
   })
 });

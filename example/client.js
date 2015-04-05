@@ -1,42 +1,74 @@
-var React       = require('react');
-var ReactMount  = require('react/lib/ReactMount');
-var ReactAsync  = require('../');
+import Promise from 'bluebird';
+import React from 'react';
+import axios from 'axios';
+import ReactMount from 'react/lib/ReactMount';
+import {Async} from '../';
 
 ReactMount.allowFullPageRender = true;
 
-var App = React.createClass({
-  mixins: [ReactAsync.Mixin],
-
-  getInitialStateAsync: function(cb) {
-    setTimeout(function() {
-      cb(null, {message: 'Hello'});
-    }, 0);
-  },
-
-  render: function() {
-    return React.DOM.html(null,
-      React.DOM.body(null,
-        React.DOM.div(null, this.state.message || 'Loading...'),
-        React.createElement(Nested)));
-  }
-});
-
-var Nested = React.createClass({
-  mixins: [ReactAsync.Mixin],
-
-  getInitialStateAsync: function(cb) {
-    setTimeout(function() {
-      cb(null, {message: 'Hi'});
-    }, 0);
-  },
-
-  render: function() {
-    return React.DOM.div(null, this.state.message || 'Loading...');
-  }
-});
-
-if (typeof window !== 'undefined') {
-  React.render(React.createElement(App), document);
+function get(url) {
+  return {
+    key: url,
+    keepData: true,
+    start() {
+      return axios.get(url).then(response => response.data);
+    }
+  };
 }
 
-module.exports = App;
+function AppProcesses({name}) {
+  return {
+    message: get(`http://localhost:3000/api/message?name=${name}`)
+  };
+}
+
+@Async(AppProcesses)
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {name: 'Andrey'};
+  }
+
+  componentDidMount() {
+    setInterval(() => {
+      this.setState({name: this.state.name + 1});
+    }, 1000);
+  }
+
+  render() {
+    let {message} = this.props;
+    let {name} = this.state;
+    return (
+      <html>
+        <head>
+        </head>
+        <body>
+          <div>{message ? message.message : 'Loading...'}</div>
+          <Nested name={name} />
+        </body>
+      </html>
+    );
+  }
+}
+
+@Async
+class Nested extends React.Component {
+
+  static processes({name}) {
+    return {
+      message: get(`http://localhost:3000/api/message?name=${name}`)
+    };
+  }
+
+  render() {
+    let {message} = this.props;
+    return <div>{message ? message.message : 'Loading...'}</div>
+  }
+}
+
+if (typeof window !== 'undefined') {
+  React.render(<App />, document);
+}
+
+export default App;
