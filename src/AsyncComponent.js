@@ -68,10 +68,10 @@ export default class AsyncComponent extends React.Component {
       let nextProcess = nextProcesses[name];
       invariant(
         isProcessDescription(nextProcess),
-        'processes should provide a start method and a key property, got %s instead',
+        'processes should provide a start method and a id property, got %s instead',
         nextProcess
       );
-      if (prevProcess.key !== nextProcess.key) {
+      if (prevProcess.id!== nextProcess.id) {
         if (prevProcess.process && typeof prevProcess.process.cancel === 'function') {
           prevProcess.process.cancel();
         }
@@ -84,8 +84,8 @@ export default class AsyncComponent extends React.Component {
         // reconcile after next process step.
         if (ExecutionEnvironment.canUseDOM) {
           nextProcess.process.then(
-            this._onProcessStep.bind(this, name, nextProcess.key),
-            this._onProcessError.bind(this, name, nextProcess.key)
+            this._onProcessStep.bind(this, name, nextProcess.id),
+            this._onProcessError.bind(this, name, nextProcess.id)
           );
         }
         nextProcesses[name] = nextProcess;
@@ -113,9 +113,9 @@ export default class AsyncComponent extends React.Component {
     this.processes = nextProcesses;
   }
 
-  _onProcessStep(name, key, data) {
+  _onProcessStep(name, id, data) {
     let process = this.processes[name];
-    if (process && process.key === key) {
+    if (process && process.id === id) {
       this.processes = {
         ...this.processes,
         [name]: {...process, data}
@@ -124,9 +124,9 @@ export default class AsyncComponent extends React.Component {
     }
   }
 
-  _onProcessError(name, key, err) {
+  _onProcessError(name, id, err) {
     let process = this.processes[name];
-    if (process && process.key === key) {
+    if (process && process.id === id) {
       console.error(`error in process "${name}" of ${this.constructor.name} component`);
       throw err;
     }
@@ -140,8 +140,8 @@ const DUMMY_PROCESS = {
 };
 
 const DUMMY_PROCESS_DESC = {
-  key: undefined,
-  data: null,
+  id: undefined,
+  data: undefined,
   process: DUMMY_PROCESS,
   start() {
     return DUMMY_PROCESS;
@@ -193,7 +193,7 @@ function storeProcesses(key, processes) {
   for (let name in processes) {
     let process = processes[name];
     data[name] = {
-      key: process.key,
+      id: process.id,
       data: process.data
     };
   }
@@ -201,7 +201,7 @@ function storeProcesses(key, processes) {
 }
 
 function isProcessDescription(o) {
-  return o && typeof o.start === 'function' && typeof o.key !== undefined;
+  return o && typeof o.start === 'function' && typeof o.id !== undefined;
 }
 
 function getComponentFingerprint(component) {

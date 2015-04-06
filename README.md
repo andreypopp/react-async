@@ -1,6 +1,11 @@
 # React Async
 
-React Async provides a way for React components to asynchronously fetch data.
+React Async provides a way for React components to asynchronously fetch data
+from different sources.
+
+The API is built around the notion of processes which covers a lot of use cases
+from waiting for a promise to be resolved to subscribing to data streams and
+observables.
 
 ## Installation
 
@@ -10,51 +15,60 @@ React Async is packaged on npm:
 
 ## Basic usage
 
-React Async provides a higer-order component which wraps a regular React
-component and process data specification defined as `processes` class property:
+React Async provides a component decorator `@Async` which given a set of process
+descriptions wraps a regular React component and returns a new one which
+executes processes and re-renders the component when new data arrives.
 
-    import {Component} from 'react';
-    import {Async, promise} from 'react-async';
+The basic example looks like:
 
-    @Async
-    class MyComponent extends Component {
+    import React from 'react';
+    import Async from 'react-async';
 
-      static processes = {
-        user(props, state) {
-          return promise(
-            key: props.userID,
-            start() {
-              return xhr(`/api/user?user=${props.userID}`)
-            }
-          }
+    function xhrProcess(url) {
+      return {
+        id: url,
+        start() {
+          return fetch(url)
         }
       }
+    }
+
+    function MyComponentProcesses(props) {
+      return {
+        user: xhrProcess(`/api/user?user${props.userID}`)
+      }
+    }
+
+    @Async(MyComponentProcesses)
+    class MyComponent extends React.Component {
 
       render() {
-        let {user} = this.data
+        let {user} = this.props
         ...
       }
 
     }
 
-As we can in `render()` method we can reference fetched data through
-`this.data.user`.
+The `@Async` decorator injects data from processes via props so in `render()`
+method of `<MyComponent />` the `user` property will contain the data fetched
+via XHR.
 
 ## Process specifications
 
-Process specifications in React Async are functions of components' `props` and
-`state` which return an asynchronous process description which consist of `key`
+Process specifications in React Async are functions of components' `props` which
+return an process descriptions which should consist at least of a `id` property
 and a `start()` method.
 
-The `key` property is used to determine when a currently running process should
+The `id` property is used to determine when a currently running process should
 be destroyed and a new one started.
 
-The `start()` method should start a new process and it.
+The `start()` method should start a new process and return an actual process
+object.
 
-A process is an object with methods `then(onStep, onError)` and `cancel()`.
+A process is an object with methods `then(onNext, onError)` and `cancel()`.
 
-The `then(onStep, onError)` method is used to subscribe for a process execution.
-The `onStep` callback is called on every new item in a process while `onError`
+The `then(onNext, onError)` method is used to subscribe for a process execution.
+The `onNext` callback is called on every new item in a process while `onError`
 is called on error conditions.
 
 The `cancel()` method is used to stop execution of a process.
@@ -79,7 +93,7 @@ First, you'd need to install `fibers` package from npm to use that function:
 
 Then use it like:
 
-    import renderToString from 'react-async';
+    import {renderToString} from 'react-async';
 
     renderToString(
       <Component />,

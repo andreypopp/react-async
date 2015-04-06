@@ -8,7 +8,7 @@ ReactMount.allowFullPageRender = true;
 
 function get(url) {
   return {
-    key: url,
+    id: url,
     keepData: true,
     start() {
       return axios.get(url).then(response => response.data);
