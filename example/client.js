@@ -46,6 +46,7 @@ class App extends React.Component {
         <body>
           <div>{message ? message.message : 'Loading...'}</div>
           <Nested name={name} />
+          <Timer />
         </body>
       </html>
     );
@@ -64,6 +65,55 @@ class Nested extends React.Component {
   render() {
     let {message} = this.props;
     return <div>{message ? message.message : 'Loading...'}</div>
+  }
+}
+
+@Async
+class Timer extends React.Component {
+
+  static processes() {
+    return {
+      count: {
+        id: null,
+        resume(data) {
+          return new TimerProcess(data);
+        },
+        start() {
+          return new TimerProcess();
+        }
+      }
+    };
+  }
+
+  render() {
+    return <div>Count: {this.props.count}</div>;
+  }
+}
+
+class TimerProcess {
+
+  constructor(data) {
+    this.timer = setInterval(this.tick.bind(this), 1000);
+    this.data = data || 0;
+    this.onNext = undefined;
+    this.onError = undefined;
+  }
+
+  then(onNext, onError) {
+    this.onNext = onNext;
+    this.onError = onError;
+  }
+
+  cancel() {
+    clearInterval(this.timer);
+  }
+
+  tick() {
+    console.log('tick');
+    this.data += 1;
+    if (this.onNext) {
+      this.onNext(this.data);
+    }
   }
 }
 
