@@ -6,6 +6,7 @@ import React from 'react';
 import ExecutionEnvironment from 'react/lib/ExecutionEnvironment';
 import invariant from 'react/lib/invariant';
 import emptyFunction from 'react/lib/emptyFunction';
+import memoized from './memoized';
 
 let Fiber;
 let Future;
@@ -29,12 +30,10 @@ export default class AsyncComponent extends React.Component {
 
   constructor(props) {
     super(props);
-    this._componentFingerprint = null;
     this.processes = null;
   }
 
   componentWillMount() {
-    this._componentFingerprint = getComponentFingerprint(this);
     this._initializeProcesses(this.props, this.state);
     if (ExecutionEnvironment.canUseDOM || needAdvance()) {
       this._reconcileProcesses(this.props, this.state);
@@ -45,9 +44,21 @@ export default class AsyncComponent extends React.Component {
     this._reconcileProcesses(props, state);
   }
 
+  @memoized
+  get _fingerprint() {
+    let instance = this._reactInternalInstance;
+    let rootNodeID = instance._rootNodeID;
+    let mountDepth = 0;
+    while (instance._currentElement._owner) {
+      mountDepth += 1;
+      instance = instance._currentElement._owner;
+    }
+    return `${rootNodeID}__${mountDepth}`;
+  }
+
   _initializeProcesses(props, state) {
     let processes = this.constructor.processes(props, state);
-    let storedProcesses = retrieveProcesses(this._componentFingerprint);
+    let storedProcesses = retrieveProcesses(this._fingerprint);
     let nextProcesses = {};
     for (let name in processes) {
       nextProcesses[name] = {
@@ -107,7 +118,7 @@ export default class AsyncComponent extends React.Component {
     // determine if we need to advance single process step
     if (needAdvance()) {
       nextProcesses = advanceProcesses(nextProcesses);
-      storeProcesses(this._componentFingerprint, nextProcesses);
+      storeProcesses(this._fingerprint, nextProcesses);
     }
     // update process dictionary
     this.processes = nextProcesses;
@@ -202,15 +213,4 @@ function storeProcesses(key, processes) {
 
 function isProcessDescription(o) {
   return o && typeof o.start === 'function' && typeof o.id !== undefined;
-}
-
-function getComponentFingerprint(component) {
-  let instance = component._reactInternalInstance;
-  let rootNodeID = instance._rootNodeID;
-  let mountDepth = 0;
-  while (instance._currentElement._owner) {
-    mountDepth += 1;
-    instance = instance._currentElement._owner;
-  }
-  return `${rootNodeID}__${mountDepth}`;
 }
