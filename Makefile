@@ -7,7 +7,7 @@ BABEL_OPTS = \
 	--optional runtime \
 	--source-maps-inline
 
-TEST_SUITES         = $(wildcard ./lib/__tests__/*.js)
+TEST_SUITES         = $(wildcard ./src/__tests__/*.js)
 TEST_SUITES_COMMON  = $(filter-out %-browser-test.js %-server-test.js, $(TEST_SUITES))
 TEST_SUITES_BROWSER = $(filter %-browser-test.js, $(TEST_SUITES))
 TEST_SUITES_SERVER  = $(filter %-server-test.js, $(TEST_SUITES))
@@ -26,7 +26,10 @@ test-server:: build
 	@$(BIN)/mocha -R dot $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
 
 test-browser:: build
-	@$(BIN)/mochify $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER)
+	@$(BIN)/mochify --transform [ babelify --stage 0 --optional runtime ] $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER)
+
+ci-browser:: build
+	@$(BIN)/mochify --watch --transform [ babelify --stage 0 --optional runtime ] $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER)
 
 release-patch: test lint
 	@$(call release,patch)

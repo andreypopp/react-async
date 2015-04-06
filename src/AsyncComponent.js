@@ -44,6 +44,13 @@ export default class AsyncComponent extends React.Component {
     this._reconcileProcesses(props, state);
   }
 
+  componentWillUnmount() {
+    for (let name in this.processes) {
+      cancelProcess(this.processes[name]);
+    }
+    this.processes = {};
+  }
+
   @memoized
   get _fingerprint() {
     let instance = this._reactInternalInstance;
@@ -214,5 +221,5 @@ function cancelProcess(processDesc) {
 }
 
 function isProcessDescription(o) {
-  return o && typeof o.start === 'function' && typeof o.id !== undefined;
+  return o && typeof o.start === 'function' && o.id !== undefined;
 }
