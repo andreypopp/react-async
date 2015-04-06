@@ -1,5 +1,7 @@
 # React Async
 
+**VERSION DESCRIBED IN THIS DOCUMENT IS NOT RELEASED YET**
+
 React Async provides a way for React components to asynchronously fetch data
 from different sources.
 
