@@ -3,21 +3,30 @@
  */
 
 import React from 'react';
+import invariant from 'react/lib/invariant';
 import injectIntoMarkup from './injectIntoMarkup';
+
+let Fiber;
+try {
+  Fiber = require('fibers');
+} catch(err) {
+
+}
 
 /**
  * An alternative async version of React.renderToString(<Element />) which
  * fetches data for all async components recursively first.
  */
 export default function renderToString(element, cb) {
-  try {
-    var Fiber = require('fibers');
-  } catch (err) {
-    console.error('ReactAsync.renderToString(): you need to install fibers module with: npm install fibers');
-    throw err;
-  }
+  invariant(
+    Fiber !== undefined,
+    'ReactAsync.renderToString(): cannot import "fibers" package, ' +
+    'you need to have it installed to use this function. ' +
+    'Install it by running the following command "npm install fibers" ' +
+    'in the project directory.'
+  );
 
-  var fiber = Fiber(function() {
+  let fiber = Fiber(function() {
     try {
       Fiber.current.__reactAsyncDataPacket__ = {};
 
