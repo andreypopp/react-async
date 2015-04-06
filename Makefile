@@ -4,10 +4,9 @@ LIB = $(SRC:src/%=lib/%)
 
 BABEL_OPTS = \
 	--stage 0 \
-	--optional runtime \
-	--source-maps-inline
+	--optional runtime
 
-TEST_SUITES         = $(wildcard ./src/__tests__/*.js)
+TEST_SUITES         = $(wildcard lib/__tests__/*.js)
 TEST_SUITES_COMMON  = $(filter-out %-browser-test.js %-server-test.js, $(TEST_SUITES))
 TEST_SUITES_BROWSER = $(filter %-browser-test.js, $(TEST_SUITES))
 TEST_SUITES_SERVER  = $(filter %-server-test.js, $(TEST_SUITES))
@@ -15,7 +14,7 @@ TEST_SUITES_SERVER  = $(filter %-server-test.js, $(TEST_SUITES))
 build: $(LIB)
 
 example: build
-	@$(BIN)/babel-node --stage 0 --optional runtime ./example/server.js
+	@$(BIN)/babel-node $(BABEL_OPTS) ./example/server.js
 
 install link:
 	@npm $@
@@ -26,10 +25,17 @@ test-server:: build
 	@$(BIN)/mocha -R dot $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
 
 test-browser:: build
-	@$(BIN)/mochify --transform [ babelify --stage 0 --optional runtime ] $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER)
+	@$(BIN)/mochify \
+		--transform [ babelify $(BABEL_OPTS) ] \
+		$(TEST_SUITES_COMMON:lib/%=./src/%) \
+		$(TEST_SUITES_BROWSER:lib/%=./src/%)
 
 ci-browser:: build
-	@$(BIN)/mochify --watch --transform [ babelify --stage 0 --optional runtime ] $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER)
+	@$(BIN)/mochify \
+		--watch \
+		--transform [ babelify $(BABEL_OPTS) ] \
+		$(TEST_SUITES_COMMON:lib/%=./src/%) \
+		$(TEST_SUITES_BROWSER:lib/%=./src/%)
 
 release-patch: test lint
 	@$(call release,patch)
@@ -47,7 +53,7 @@ publish:
 lib/%.js: src/%.js
 	@echo "building $@"
 	@mkdir -p $(@D)
-	@$(BIN)/babel $(BABEL_OPTS) -o $@ $<
+	@$(BIN)/babel $(BABEL_OPTS) --source-maps-inline -o $@ $<
 
 clean:
 	@rm -f $(LIB)
