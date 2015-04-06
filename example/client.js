@@ -109,7 +109,6 @@ class TimerProcess {
   }
 
   tick() {
-    console.log('tick');
     this.data += 1;
     if (this.onNext) {
       this.onNext(this.data);
