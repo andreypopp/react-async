@@ -44,7 +44,7 @@ import AsyncComponent from './AsyncComponent';
  * All three syntaxes result in an equivalent behaviour.
  */
 export default function Async(obj, processes) {
-  if (obj.prototype instanceof React.Component) {
+  if (obj && obj.prototype && typeof obj.prototype.render === 'function') {
     if (processes === undefined) {
       invariant(
         typeof obj.processes === 'function',

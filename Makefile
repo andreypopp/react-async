@@ -25,7 +25,7 @@ test:: test-server test-browser
 test-server:: build
 	@$(BIN)/mocha -R dot $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
 
-test-browser:
+test-browser:: build
 	@$(BIN)/mochify $(TEST_SUITES_COMMON) $(TEST_SUITES_BROWSER)
 
 release-patch: test lint
