@@ -83,9 +83,7 @@ export default class AsyncComponent extends React.Component {
         nextProcess
       );
       if (prevProcess.id!== nextProcess.id) {
-        if (prevProcess.process && typeof prevProcess.process.cancel === 'function') {
-          prevProcess.process.cancel();
-        }
+        cancelProcess(prevProcess);
         nextProcess = {
           ...nextProcess,
           process: nextProcess.start(),
@@ -109,10 +107,7 @@ export default class AsyncComponent extends React.Component {
     for (let i = 0; i < names.length; i++) {
       let name = names[i];
       if (names.indexOf(name) === -1) {
-        let process = this.processes[name];
-        if (process.process && typeof process.process.cancel === 'function') {
-          process.process.cancel();
-        }
+        cancelProcess(this.processes[name]);
       }
     }
     // determine if we need to advance single process step
@@ -209,6 +204,13 @@ function storeProcesses(key, processes) {
     };
   }
   Fiber.current.__reactAsyncDataPacket__[key] = data;
+}
+
+function cancelProcess(processDesc) {
+  let process = processDesc.process;
+  if (process && typeof process.cancel === 'function') {
+    process.cancel();
+  }
 }
 
 function isProcessDescription(o) {
