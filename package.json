@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "ascii-json": "~0.2.0"
-  }
+  },
   "peerDependencies": {
     "react": "^0.13.0"
   },
