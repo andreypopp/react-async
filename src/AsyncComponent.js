@@ -34,10 +34,15 @@ export default class AsyncComponent extends React.Component {
   }
 
   componentWillMount() {
-    this._initializeProcesses(this.props, this.state);
-    if (ExecutionEnvironment.canUseDOM || needAdvance()) {
-      this._reconcileProcesses(this.props, this.state);
+    let shouldRunOnServer = checkIfShouldRunOnServer();
+    if (shouldRunOnServer || ExecutionEnvironment.canUseDOM) {
+      this._initializeProcesses(this.props, this.state);
     }
+    if (shouldRunOnServer) {
+      this.processes = tickProcesses(this.processes);
+      storeProcesses(this._fingerprint, this.processes);
+      this._cancelProcesses();
+    };
   }
 
   componentWillUpdate(props, state) {
@@ -45,9 +50,7 @@ export default class AsyncComponent extends React.Component {
   }
 
   componentWillUnmount() {
-    for (let name in this.processes) {
-      cancelProcess(this.processes[name]);
-    }
+    this._cancelProcesses();
     this.processes = {};
   }
 
@@ -63,15 +66,41 @@ export default class AsyncComponent extends React.Component {
     return `${rootNodeID}__${mountDepth}`;
   }
 
+  _cancelProcesses() {
+    for (let name in this.processes) {
+      cancelProcess(this.processes[name]);
+    }
+  }
+
   _initializeProcesses(props, state) {
     let processes = this.constructor.processes(props, state);
     let storedProcesses = retrieveProcesses(this._fingerprint);
     let nextProcesses = {};
     for (let name in processes) {
-      nextProcesses[name] = {
-        ...DUMMY_PROCESS_DESC,
-        ...storedProcesses[name]
-      };
+      let process = processes[name];
+      invariant(
+        isProcessDescription(process),
+        'processes should provide a start method and a id property, got %s instead',
+        nextProcess
+      );
+      let storedProcess = storedProcesses[name];
+      let nextProcess;
+      if (storedProcess) {
+        nextProcess = {
+          ...process,
+          ...storedProcess
+        };
+        if (typeof nextProcess.resume === 'function') {
+          nextProcess.process = nextProcess.resume(nextProcess.data);
+        }
+      } else {
+        nextProcess = {
+          ...process,
+          process: process.start()
+        };
+      }
+      this._subscribeToProcess(name, nextProcess);
+      nextProcesses[name] = nextProcess;
     }
     this.processes = nextProcesses;
   }
@@ -89,21 +118,14 @@ export default class AsyncComponent extends React.Component {
         'processes should provide a start method and a id property, got %s instead',
         nextProcess
       );
-      if (prevProcess.id!== nextProcess.id) {
+      if (prevProcess.id !== nextProcess.id) {
         cancelProcess(prevProcess);
         nextProcess = {
           ...nextProcess,
           process: nextProcess.start(),
           data: nextProcess.keepData ? prevProcess.data : nextProcess.data
         };
-        // Subscribe to process if and only if we can access DOM and so we can
-        // reconcile after next process step.
-        if (ExecutionEnvironment.canUseDOM) {
-          nextProcess.process.then(
-            this._onProcessStep.bind(this, name, nextProcess.id),
-            this._onProcessError.bind(this, name, nextProcess.id)
-          );
-        }
+        this._subscribeToProcess(name, nextProcess);
         nextProcesses[name] = nextProcess;
       } else {
         nextProcesses[name] = prevProcess;
@@ -117,13 +139,17 @@ export default class AsyncComponent extends React.Component {
         cancelProcess(this.processes[name]);
       }
     }
-    // determine if we need to advance single process step
-    if (needAdvance()) {
-      nextProcesses = advanceProcesses(nextProcesses);
-      storeProcesses(this._fingerprint, nextProcesses);
-    }
     // update process dictionary
     this.processes = nextProcesses;
+  }
+
+  _subscribeToProcess(name, processDesc) {
+    if (ExecutionEnvironment.canUseDOM && processDesc.process) {
+      processDesc.process.then(
+        this._onProcessStep.bind(this, name, processDesc.id),
+        this._onProcessError.bind(this, name, processDesc.id)
+      );
+    }
   }
 
   _onProcessStep(name, id, data) {
@@ -161,7 +187,7 @@ const DUMMY_PROCESS_DESC = {
   }
 }
 
-function needAdvance() {
+function checkIfShouldRunOnServer() {
   return (
     Fiber !== undefined &&
     Fiber.current !== undefined &&
@@ -169,7 +195,7 @@ function needAdvance() {
   );
 }
 
-function advanceProcesses(processes) {
+function tickProcesses(processes) {
   processes = {...processes};
 
   let futures = [];
@@ -178,8 +204,24 @@ function advanceProcesses(processes) {
     if (!process.process) {
       continue;
     }
-    let future = Future.wrap((process, cb) =>
-        process.process.then(cb.bind(null, null), cb))(process);
+    let future = Future.wrap((process, cb) => {
+      let resolved = false;
+      process.process.then(
+        function(result) {
+          if (resolved) {
+            return;
+          }
+          resolved = true;
+          cb(null, result);
+        },
+        function(err) {
+          if (resolved) {
+            return;
+          }
+          resolved = true;
+          cb(err);
+        });
+    })(process);
     futures.push({future, name, process});
   }
 
