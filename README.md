@@ -24,7 +24,7 @@ The basic example looks like:
     import React from 'react';
     import Async from 'react-async';
 
-    function xhrProcess(url) {
+    function defineXHRProcess(url) {
       return {
         id: url,
         start() {
@@ -35,7 +35,7 @@ The basic example looks like:
 
     function MyComponentProcesses(props) {
       return {
-        user: xhrProcess(`/api/user?user${props.userID}`)
+        user: defineXHRProcess(`/api/user?user${props.userID}`)
       }
     }
 
