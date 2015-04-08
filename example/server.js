@@ -1,7 +1,7 @@
 import express from 'express';
 import browserify from 'connect-browserify';
 import React from 'react';
-import * as ReactAsync from '../';
+import * as ReactAsync from '../src';
 import App from './client';
 
 express()

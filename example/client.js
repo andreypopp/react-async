@@ -2,7 +2,8 @@ import Promise from 'bluebird';
 import React from 'react';
 import axios from 'axios';
 import ReactMount from 'react/lib/ReactMount';
-import {Async} from '../';
+import {Async} from '../src';
+import Rx from 'rx';
 
 ReactMount.allowFullPageRender = true;
 
@@ -11,18 +12,18 @@ function get(url) {
     id: url,
     keepData: true,
     start() {
-      return axios.get(url).then(response => response.data);
+      return Rx.Observable.fromPromise(axios.get(url).then(response => response.data));
     }
   };
 }
 
-function AppProcesses({name}) {
+function AppObservables({name}) {
   return {
     message: get(`http://localhost:3000/api/message?name=${name}`)
   };
 }
 
-@Async(AppProcesses)
+@Async(AppObservables)
 class App extends React.Component {
 
   constructor(props) {
@@ -31,9 +32,9 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    setInterval(() => {
+    Rx.Observable.interval(1000).forEach(() => {
       this.setState({name: this.state.name + 1});
-    }, 1000);
+    });
   }
 
   render() {
@@ -56,7 +57,7 @@ class App extends React.Component {
 @Async
 class Nested extends React.Component {
 
-  static processes({name}) {
+  static observe({name}) {
     return {
       message: get(`http://localhost:3000/api/message?name=${name}`)
     };
@@ -71,15 +72,20 @@ class Nested extends React.Component {
 @Async
 class Timer extends React.Component {
 
-  static processes() {
+  static observe() {
     return {
       count: {
         id: null,
-        resume(data) {
-          return new TimerProcess(data);
-        },
-        start() {
-          return new TimerProcess();
+        start(count) {
+          // produce a new value each second
+          var observable = Rx.Observable.interval(1000);
+          // if we are resuming counting then shift by a previously computed
+          // value on server
+          if (count !== undefined) {
+            return observable.map(x => x + count + 1).startWith(count + 1);
+          } else {
+            return observable;
+          }
         }
       }
     };
@@ -87,32 +93,6 @@ class Timer extends React.Component {
 
   render() {
     return <div>Count: {this.props.count}</div>;
-  }
-}
-
-class TimerProcess {
-
-  constructor(data) {
-    this.timer = setInterval(this.tick.bind(this), 1000);
-    this.data = data || 0;
-    this.onNext = undefined;
-    this.onError = undefined;
-  }
-
-  then(onNext, onError) {
-    this.onNext = onNext;
-    this.onError = onError;
-  }
-
-  cancel() {
-    clearInterval(this.timer);
-  }
-
-  tick() {
-    this.data += 1;
-    if (this.onNext) {
-      this.onNext(this.data);
-    }
   }
 }
 

@@ -19,39 +19,41 @@ try {
 
 }
 
+const DUMMY_OBSERVABLE = {
+  subscribe: emptyFunction
+};
+
+const DUMM_SUBSCRIPTION = {
+  dispose: emptyFunction
+};
+
 export default class AsyncComponent extends React.Component {
 
-  static processes(props, state) {
+  static observe(props, state) {
     invariant(
       false,
-      'AsyncComponent subclass should implement processes() class method'
+      'AsyncComponent subclass should implement observe() class method'
     );
   }
 
   constructor(props) {
     super(props);
-    this.processes = null;
+    this.observed = null;
   }
 
   componentWillMount() {
-    let shouldRunOnServer = checkIfShouldRunOnServer();
-    if (shouldRunOnServer || ExecutionEnvironment.canUseDOM) {
-      this._initializeProcesses(this.props, this.state);
-    }
-    if (shouldRunOnServer) {
-      this.processes = tickProcesses(this.processes);
-      storeProcesses(this._fingerprint, this.processes);
-      this._cancelProcesses();
-    };
+    this._startObservables(this.props, this.state);
   }
 
   componentWillUpdate(props, state) {
-    this._reconcileProcesses(props, state);
+    this._reconcileObservables(props, state);
   }
 
   componentWillUnmount() {
-    this._cancelProcesses();
-    this.processes = {};
+    for (let name in this.observed) {
+      this.observed.subscription.dispose();
+    }
+    this.observed = null;
   }
 
   @memoized
@@ -66,128 +68,101 @@ export default class AsyncComponent extends React.Component {
     return `${rootNodeID}__${mountDepth}`;
   }
 
-  _cancelProcesses() {
-    for (let name in this.processes) {
-      cancelProcess(this.processes[name]);
-    }
-  }
-
-  _initializeProcesses(props, state) {
-    let processes = this.constructor.processes(props, state);
-    let storedProcesses = retrieveProcesses(this._fingerprint);
-    let nextProcesses = {};
-    for (let name in processes) {
-      let process = processes[name];
-      invariant(
-        isProcessDescription(process),
-        'processes should provide a start method and a id property, got %s instead',
-        nextProcess
-      );
-      let storedProcess = storedProcesses[name];
-      let nextProcess;
-      if (storedProcess) {
-        nextProcess = {
-          ...process,
-          ...storedProcess
-        };
-        if (typeof nextProcess.resume === 'function') {
-          nextProcess.process = nextProcess.resume(nextProcess.data);
-        }
-      } else {
-        nextProcess = {
-          ...process,
-          process: process.start()
-        };
-      }
-      this._subscribeToProcess(name, nextProcess);
-      nextProcesses[name] = nextProcess;
-    }
-    this.processes = nextProcesses;
-  }
-
-  _reconcileProcesses(props, state) {
-    let nextProcesses = this.constructor.processes(props, state);
-    let names = Object.keys(nextProcesses);
-    // reconcile new process dictionary
-    for (let i = 0; i < names.length; i++) {
-      let name = names[i];
-      let prevProcess = this.processes[name];
-      let nextProcess = nextProcesses[name];
-      invariant(
-        isProcessDescription(nextProcess),
-        'processes should provide a start method and a id property, got %s instead',
-        nextProcess
-      );
-      if (prevProcess.id !== nextProcess.id) {
-        cancelProcess(prevProcess);
-        nextProcess = {
-          ...nextProcess,
-          process: nextProcess.start(),
-          data: nextProcess.keepData ? prevProcess.data : nextProcess.data
-        };
-        this._subscribeToProcess(name, nextProcess);
-        nextProcesses[name] = nextProcess;
-      } else {
-        nextProcesses[name] = prevProcess;
-      }
-    }
-    // cancel old process which were not mentioned in nextProcesses
-    let prevNames = Object.keys(this.processes);
-    for (let i = 0; i < names.length; i++) {
-      let name = names[i];
-      if (names.indexOf(name) === -1) {
-        cancelProcess(this.processes[name]);
-      }
-    }
-    // update process dictionary
-    this.processes = nextProcesses;
-  }
-
-  _subscribeToProcess(name, processDesc) {
-    if (ExecutionEnvironment.canUseDOM && processDesc.process) {
-      processDesc.process.then(
-        this._onProcessStep.bind(this, name, processDesc.id),
-        this._onProcessError.bind(this, name, processDesc.id)
-      );
-    }
-  }
-
-  _onProcessStep(name, id, data) {
-    let process = this.processes[name];
-    if (process && process.id === id) {
-      this.processes = {
-        ...this.processes,
-        [name]: {...process, data}
+  _startObservables(props, state) {
+    // we need to assign to this now because onNext can be synchronously called
+    this.observed = {...this.constructor.observe(props, state)};
+    let shouldWaitForTick = checkShouldWaitForTick();
+    let nextNames = Object.keys(this.observed);
+    let storedObserved = retrieveObservedInfo(this._fingerprint);
+    for (let i = 0; i < nextNames.length; i++) {
+      let name = nextNames[i];
+      let next = this.observed[name];
+      validatedObserved(this.constructor.name, name, next);
+      next = {
+        ...next,
+        ...storedObserved[name]
       };
-      this.forceUpdate();
+      if (shouldWaitForTick) {
+        next.observable = next.start();
+      } else if (ExecutionEnvironment.canUseDOM) {
+        if (!next.completed) {
+          next.observable = next.start(next.data);
+          next.subscription = next.observable.subscribe({
+            onNext: this._onNext.bind(this, name),
+            onCompleted: this._onCompleted.bind(this, name),
+            onError: this._onError.bind(this, name)
+          });
+        } else {
+          next.observable = DUMMY_OBSERVABLE;
+          next.subscription = DUMM_SUBSCRIPTION;
+        }
+      }
+      this.observed[name] = next;
     }
+
+    if (shouldWaitForTick) {
+      this.observed = waitForTick(this.observed);
+      storeObservedInfo(this._fingerprint, this.observed);
+    };
   }
 
-  _onProcessError(name, id, err) {
-    let process = this.processes[name];
-    if (process && process.id === id) {
-      console.error(`error in process "${name}" of ${this.constructor.name} component`);
-      throw err;
+  _reconcileObservables(props, state) {
+    let nextObserved = {...this.constructor.observe(props, state)};
+    let prevObserved = this.observed;
+    let prevNames = Object.keys(prevObserved);
+    let nextNames = Object.keys(nextObserved);
+
+    // reconcile new observed dictionary
+    for (let i = 0; i < nextNames.length; i++) {
+      let name = nextNames[i];
+      let prev = prevObserved[name];
+      let next = nextObserved[name];
+      validatedObserved(this.constructor.name, name, next);
+      if (prev !== undefined && prev.id === next.id) {
+        nextObserved[name] = prev;
+      } else {
+        prev.subscription.dispose();
+        next = {...next};
+        next.observable = next.start();
+        next.subscription = next.observable.subscribe({
+          onNext: this._onNext.bind(this, name),
+          onCompleted: this._onCompleted.bind(this, name),
+          onError: this._onError.bind(this, name)
+        });
+        nextObserved[name] = next;
+      }
     }
+
+    // cancel old observed which were not mentioned in nextObserved
+    for (let i = 0; i < prevNames.length; i++) {
+      let name = prevNames[i];
+      if (nextNames.indexOf(name) === -1) {
+        prevObserved[prevName].subscription.dispose();
+      }
+    }
+
+    // update observed dictionary
+    this.observed = nextObserved;
+  }
+
+  _onNext(name, data) {
+    this.observed[name].data = data;
+    this.forceUpdate();
+  }
+
+  _onCompleted(name) {
+    // TODO: why it's useful?
+  }
+
+  _onError(name, err) {
+    // TODO: we need a way to propagate errors up back
+    console.error(`error in observable "${name}" of ${this.constructor.name} component`);
+    throw err;
   }
 
 }
 
-const DUMMY_PROCESS = {
-  cancel: emptyFunction,
-  then: emptyFunction
-};
-
-const DUMMY_PROCESS_DESC = {
-  id: undefined,
-  data: undefined,
-  process: DUMMY_PROCESS,
-  start() {
-    return DUMMY_PROCESS;
-  }
-}
-
-function checkIfShouldRunOnServer() {
+function checkShouldWaitForTick() {
   return (
     Fiber !== undefined &&
     Fiber.current !== undefined &&
@@ -195,47 +170,81 @@ function checkIfShouldRunOnServer() {
   );
 }
 
-function tickProcesses(processes) {
-  processes = {...processes};
-
-  let futures = [];
-  for (let name in processes) {
-    let process = processes[name];
-    if (!process.process) {
-      continue;
-    }
-    let future = Future.wrap((process, cb) => {
-      let resolved = false;
-      process.process.then(
-        function(result) {
-          if (resolved) {
-            return;
-          }
-          resolved = true;
-          cb(null, result);
-        },
-        function(err) {
-          if (resolved) {
-            return;
-          }
-          resolved = true;
-          cb(err);
-        });
-    })(process);
-    futures.push({future, name, process});
-  }
-
-  Future.wait.apply(Future, futures.map(f => f.future));
-
-  for (let i = 0; i < futures.length; i++) {
-    let future = futures[i];
-    processes[future.name] = {...future.process, data: future.future.get()};
-  }
-
-  return processes;
+function validatedObserved(componentName, name, observed) {
+  invariant(
+    observed.id !== undefined,
+    'observable description should provide an "id" property ' +
+    'but observable description %s of %s component does not have it',
+    name, componentName
+  );
+  invariant(
+    typeof observed.start === 'function',
+    'observable description should provide a start() function ' +
+    'but observable description %s of %s component does not have it',
+    name, componentName
+  );
 }
 
-function retrieveProcesses(key) {
+function waitForTick(observed) {
+  let nextObserved = {};
+  let completed = {};
+  let futures = [];
+  for (let name in observed) {
+    let o = observed[name];
+    nextObserved[name] = {...o};
+    let future = waitForNext(name, o.observable, {
+      onNext(name, data) {
+        nextObserved[name].data = data;
+      },
+      onCompleted(name) {
+        nextObserved[name].completed = true;
+      },
+      onError(name, err) {
+
+      }
+    });
+    futures.push(future);
+  }
+  Future.wait.apply(Future, futures);
+  return nextObserved;
+}
+
+function waitForNext(name, observable, observer) {
+  let subscription;
+  let scheduled = false;
+  let makeFuture = Future.wrap((cb) => {
+    subscription = observable.subscribe({
+      onNext(data) {
+        observer.onNext(name, data);
+        // we defer resolution to next tick so onCompleted has a chance to
+        // execute
+        if (!scheduled) {
+          scheduled = true;
+          process.nextTick(function() {
+            cb(null);
+          });
+        };
+      },
+      onCompleted() {
+        observer.onCompleted(name);
+      },
+      onError(err) {
+        observer.onError(name, err);
+        if (!scheduled) {
+          scheduled = true;
+          cb(err);
+        };
+      }
+    });
+  })
+  let future = makeFuture();
+  future.resolve(function() {
+    subscription.dispose();
+  });
+  return future;
+}
+
+function retrieveObservedInfo(key) {
   if (!ExecutionEnvironment.canUseDOM || window.__reactAsyncDataPacket__ === undefined) {
     return {};
   } else {
@@ -243,25 +252,18 @@ function retrieveProcesses(key) {
   }
 }
 
-function storeProcesses(key, processes) {
-  let data = {};
-  for (let name in processes) {
-    let process = processes[name];
-    data[name] = {
-      id: process.id,
-      data: process.data
-    };
+function storeObservedInfo(key, observed) {
+  let packet = {};
+  for (let name in observed) {
+    let {id, data, completed} = observed[name];
+    completed = !!completed;
+    packet[name] = {id, data, completed};
   }
-  Fiber.current.__reactAsyncDataPacket__[key] = data;
+  Fiber.current.__reactAsyncDataPacket__[key] = packet;
 }
 
-function cancelProcess(processDesc) {
-  let process = processDesc.process;
-  if (process && typeof process.cancel === 'function') {
-    process.cancel();
-  }
-}
-
-function isProcessDescription(o) {
-  return o && typeof o.start === 'function' && o.id !== undefined;
+function nextTick() {
+  var future = new Future();
+  process.nextTick(() => future.return());
+  return future;
 }

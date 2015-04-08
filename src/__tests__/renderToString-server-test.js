@@ -1,13 +1,14 @@
 import assert from 'assert';
 import Promise from 'bluebird';
+import Rx from 'rx';
 import React from 'react';
 import Async, {renderToString} from '../';
 
-function defineProcess(value) {
+function defineObservableValue(value) {
   return {
     id: null,
     start() {
-      return Promise.delay(0).then(() => value);
+      return Rx.Observable.fromPromise(Promise.delay(0).then(() => value));
     }
   };
 }
@@ -16,11 +17,11 @@ describe('ReactAsync.renderToString (server)', function() {
 
   it('fetches data before rendering a component', function(done) {
 
-    function processes() {
-      return {message: defineProcess('hello')};
+    function observe() {
+      return {message: defineObservableValue('hello')};
     }
 
-    @Async(processes)
+    @Async(observe)
     class Component extends React.Component {
 
       render() {
@@ -37,18 +38,18 @@ describe('ReactAsync.renderToString (server)', function() {
       assert.equal(Object.keys(data).length, 1)
       let id = Object.keys(data)[0];
       assert.ok(data[id]);
-      assert.deepEqual(data[id], {message: {id: null, data: 'hello'}});
+      assert.deepEqual(data[id], {message: {id: null, data: 'hello', completed: true}});
       done();
     });
   });
 
-  it('fetches data before rendering a component with processes defined inline', function(done) {
+  it('fetches data before rendering a component with observe defined inline', function(done) {
 
     @Async
     class Component extends React.Component {
 
-      static processes() {
-        return {message: defineProcess('hello')};
+      static observe() {
+        return {message: defineObservableValue('hello')};
       }
 
       render() {
@@ -65,15 +66,15 @@ describe('ReactAsync.renderToString (server)', function() {
       assert.equal(Object.keys(data).length, 1)
       let id = Object.keys(data)[0];
       assert.ok(data[id]);
-      assert.deepEqual(data[id], {message: {id: null, data: 'hello'}});
+      assert.deepEqual(data[id], {message: {id: null, data: 'hello', completed: true}});
       done();
     });
   });
 
   it('fetches data before rendering a component defined with React.createClass', function(done) {
 
-    function processes() {
-      return {message: defineProcess('hello, legacy')};
+    function observe() {
+      return {message: defineObservableValue('hello, legacy')};
     }
 
     let LegacyComponent = React.createClass({
@@ -82,7 +83,7 @@ describe('ReactAsync.renderToString (server)', function() {
       }
     });
 
-    LegacyComponent = Async(LegacyComponent, processes);
+    LegacyComponent = Async(LegacyComponent, observe);
 
     renderToString(<LegacyComponent />, function(err, markup, data) {
       if (err) {
@@ -93,7 +94,7 @@ describe('ReactAsync.renderToString (server)', function() {
       assert.equal(Object.keys(data).length, 1)
       let id = Object.keys(data)[0];
       assert.ok(data[id]);
-      assert.deepEqual(data[id], {message: {id: null, data: 'hello, legacy'}});
+      assert.deepEqual(data[id], {message: {id: null, data: 'hello, legacy', completed: true}});
       done();
     });
   });
@@ -102,8 +103,8 @@ describe('ReactAsync.renderToString (server)', function() {
 
     @Async
     class Component extends React.Component {
-      static processes() {
-        return {message: defineProcess('hello')};
+      static observe() {
+        return {message: defineObservableValue('hello')};
       }
 
       render() {
@@ -128,7 +129,7 @@ describe('ReactAsync.renderToString (server)', function() {
       assert.equal(Object.keys(data).length, 1)
       let id = Object.keys(data)[0];
       assert.ok(data[id]);
-      assert.deepEqual(data[id], {message: {id: null, data: 'hello'}});
+      assert.deepEqual(data[id], {message: {id: null, data: 'hello', completed: true}});
 
       done();
     });
@@ -139,8 +140,8 @@ describe('ReactAsync.renderToString (server)', function() {
     @Async
     class Component extends React.Component {
 
-      static processes() {
-        return {message: defineProcess('hello')};
+      static observe() {
+        return {message: defineObservableValue('hello')};
       }
 
       render() {
@@ -151,8 +152,8 @@ describe('ReactAsync.renderToString (server)', function() {
     @Async
     class OuterAsync extends React.Component {
 
-      static processes() {
-        return {className: defineProcess('outer')};
+      static observe() {
+        return {className: defineObservableValue('outer')};
       }
 
       render() {
@@ -178,8 +179,8 @@ describe('ReactAsync.renderToString (server)', function() {
     @Async
     class Component extends React.Component {
 
-      static processes() {
-        return {message: defineProcess('hello')};
+      static observe() {
+        return {message: defineObservableValue('hello')};
       }
 
       render() {
@@ -194,7 +195,7 @@ describe('ReactAsync.renderToString (server)', function() {
 
       assert.ok(markup.indexOf('hello') > -1);
       assert.ok(markup.indexOf('<script>window.__reactAsyncDataPacket__ = {') > -1);
-      assert.ok(markup.indexOf('{"message":{"id":null,"data":"hello"}}}</script>') > -1);
+      assert.ok(markup.indexOf('{"message":{"id":null,"data":"hello","completed":true}}}</script>') > -1);
 
       done();
     });
@@ -206,8 +207,8 @@ describe('ReactAsync.renderToString (server)', function() {
     @Async
     class Component extends React.Component {
 
-      static processes() {
-        return {message: defineProcess('hello')};
+      static observe() {
+        return {message: defineObservableValue('hello')};
       }
 
       render() {

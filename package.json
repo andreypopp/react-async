@@ -25,6 +25,7 @@
     "mochify": "^1.4.0",
     "phantomjs": "^1.9.11",
     "react": "^0.13.0",
+    "rx": "^2.5.1",
     "semver": "~4.1.0"
   },
   "scripts": {

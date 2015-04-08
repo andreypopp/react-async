@@ -7,29 +7,27 @@ import invariant from 'react/lib/invariant';
 import AsyncComponent from './AsyncComponent';
 
 /**
- * Decorate React component class with async processes.
- *
- * This is a component class decorator which receives a component class, a
- * processes specification and returns a new component class which executes
- * processes and re-render the decorated component which data injected via
- * props.
+ * This is a component class decorator which receives a component class, an
+ * observable specification and returns a new component class which subscribes
+ * to observables and re-render the decorated component with data from
+ * observables injected via props.
  *
  * There are several syntaxes to call the decorator.
  *
  * ES7 class decorator syntax:
  *
- *    @Async(processes)
+ *    @Async(observe)
  *    class Component extends React.Component {
  *
  *      ...
  *    }
  *
- * ES7 class decorator syntax with processes specifications defined inline:
+ * ES7 class decorator syntax with observable specifications defined inline:
  *
  *    @Async
  *    class Component extends React.Component {
  *
- *      static processes(props) {
+ *      static observe(props) {
  *        ...
  *      }
  *    }
@@ -39,40 +37,40 @@ import AsyncComponent from './AsyncComponent';
  *    class Component extends React.Component {
  *      ...
  *    }
- *    Component = Async(Component, processes)
+ *    Component = Async(Component, observe)
  *
  * All three syntaxes result in an equivalent behaviour.
  */
-export default function Async(obj, processes) {
+export default function Async(obj, observe) {
   if (obj && obj.prototype && typeof obj.prototype.render === 'function') {
-    if (processes === undefined) {
+    if (observe === undefined) {
       invariant(
-        typeof obj.processes === 'function',
-        'class should define static processes() method'
+        typeof obj.observe === 'function',
+        'class should define static observe() method'
       );
-      processes = obj.processes;
+      observe = obj.observe;
     }
-    return decorateComponentClass(processes, obj);
+    return decorateComponentClass(observe, obj);
   } else {
     return decorateComponentClass.bind(null, obj);
   }
 }
 
-function decorateComponentClass(processes, Component) {
+function decorateComponentClass(observe, Component) {
   return class extends AsyncComponent {
 
     constructor(props) {
       super(props);
     }
 
-    static processes(props, state) {
-      return processes(props, state);
+    static observe(props, state) {
+      return observe(props, state);
     }
 
     render() {
       let props = {...this.props};
-      for (let name in this.processes) {
-        props[name] = this.processes[name].data;
+      for (let name in this.observed) {
+        props[name] = this.observed[name].data;
       }
       return <Component {...props} />;
     }
