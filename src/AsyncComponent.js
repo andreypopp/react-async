@@ -261,9 +261,3 @@ function storeObservedInfo(key, observed) {
   }
   Fiber.current.__reactAsyncDataPacket__[key] = packet;
 }
-
-function nextTick() {
-  var future = new Future();
-  process.nextTick(() => future.return());
-  return future;
-}
