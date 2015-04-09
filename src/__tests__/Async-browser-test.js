@@ -3,26 +3,32 @@ import React from 'react';
 import TestUtils from 'react/lib/ReactTestUtils';
 import Async from '../Async';
 
-class DummyProcess {
+class SubscriptionMock {
+  constructor() {
+    this.disposed = false;
+  }
+
+  dispose() {
+    this.disposed = true;
+  }
+}
+
+class ObservableMock {
 
   constructor() {
-    this.cancelled = false;
     this.onNext = null;
     this.onError = null;
   }
 
-  then(onNext, onError) {
+  subscribe({onNext, onError}) {
     this.onNext = onNext;
     this.onError = onError;
-  }
-
-  cancel() {
-    this.cancelled = true;
+    return new SubscriptionMock();
   }
 }
 
 function start() {
-  return new DummyProcess();
+  return new ObservableMock();
 }
 
 function rerender(component, element) {
@@ -50,8 +56,8 @@ describe('AsyncComponent (browser)', function() {
       super(props);
     }
 
-    static processes(props) {
-      return {process: props.process};
+    static observe(props) {
+      return {one: props.observable};
     }
 
     render() {
@@ -65,71 +71,72 @@ describe('AsyncComponent (browser)', function() {
   });
 
   it('starts processes on componentWillMount', function() {
-    let component = render(<Component process={{id: 'id', start}} />);
-    assert.ok(component.processes);
-    assert.ok(component.processes.process);
-    let processDesc = component.processes.process;
-    assert.ok(processDesc.id, 'id');
-    assert.ok(processDesc.process);
-    let process = processDesc.process;
-    assert.ok(!process.cancelled);
-    assert.ok(process.onNext);
-    assert.ok(process.onError);
+    let component = render(<Component observable={{id: 'id', start}} />);
+    assert.ok(component.observed);
+    assert.ok(component.observed.one);
+    let observed = component.observed.one;
+    assert.ok(observed.id, 'id');
+    assert.ok(observed.observable);
+    assert.ok(observed.subscription);
+    assert.ok(!observed.subscription.disposed);
+    assert.ok(observed.observable.onNext);
+    assert.ok(observed.observable.onError);
   });
 
-  it('cancels processes on componentWillUnmount', function() {
-    let component = render(<Component process={{id: 'id', start}} />);
-    let process = component.processes.process.process;
+  it('disposes processes on componentWillUnmount', function() {
+    let component = render(<Component observable={{id: 'id', start}} />);
+    let subscription = component.observed.one.subscription;
     unmount(component);
-    assert.ok(process.cancelled);
+    assert.ok(subscription.disposed);
   });
 
-  it('cancels old process and starts new on id change', function() {
-    let component = render(<Component process={{id: 'id', start}} />);
-    let prevProcess = component.processes.process.process;
-    assert.ok(!prevProcess.cancelled);
-    rerender(component, <Component process={{id: 'id2', start}} />);
-    let nextProcess = component.processes.process.process;
-    assert.ok(prevProcess.cancelled);
-    assert.ok(!nextProcess.cancelled);
+  it('disposes old observable and starts new on id change', function() {
+    let component = render(<Component observable={{id: 'id', start}} />);
+    let prevObserved = component.observed.one;
+    assert.ok(!prevObserved.subscription.disposed);
+    rerender(component, <Component observable={{id: 'id2', start}} />);
+    let nextObserved = component.observed.one;
+    assert.ok(prevObserved.subscription.disposed);
+    assert.ok(!nextObserved.subscription.disposed);
     unmount(component);
-    assert.ok(nextProcess.cancelled);
-    assert.ok(prevProcess.cancelled);
+    assert.ok(prevObserved.subscription.disposed);
+    assert.ok(nextObserved.subscription.disposed);
   });
 
-  it('keeps process running if id does not change', function() {
-    let component = render(<Component process={{id: 'id', start}} />);
-    let prevProcess = component.processes.process.process;
-    assert.ok(!prevProcess.cancelled);
-    rerender(component, <Component process={{id: 'id', start}} />);
-    let nextProcess = component.processes.process.process;
-    assert.ok(!prevProcess.cancelled);
-    assert.ok(!nextProcess.cancelled);
-    assert.ok(prevProcess === nextProcess);
+  it('keeps observable running if id does not change', function() {
+    let component = render(<Component observable={{id: 'id', start}} />);
+    let prevObserved = component.observed.one;
+    assert.ok(!prevObserved.subscription.disposed);
+    rerender(component, <Component observable={{id: 'id', start}} />);
+    let nextObserved = component.observed.one;
+    assert.ok(!nextObserved.subscription.disposed);
+    assert.ok(!prevObserved.subscription.disposed);
+    assert.ok(nextObserved.observable === nextObserved.observable);
+    assert.ok(nextObserved.subscription === nextObserved.subscription);
     unmount(component);
-    assert.ok(nextProcess.cancelled);
-    assert.ok(prevProcess.cancelled);
+    assert.ok(nextObserved.subscription.disposed);
+    assert.ok(prevObserved.subscription.disposed);
   });
 
-  it('re-renders if data comes out of process', function() {
-    let component = render(<Component process={{id: 'id', start}} />);
-    let process = component.processes.process.process;
+  it('re-renders if data comes out of observable', function() {
+    let component = render(<Component observable={{id: 'id', start}} />);
+    let observed = component.observed.one;
     assert.equal(renderCount, 1);
-    process.onNext('data');
+    observed.observable.onNext('data');
     assert.equal(renderCount, 2);
-    process.onNext('data2');
+    observed.observable.onNext('data2');
     assert.equal(renderCount, 3);
     unmount(component);
   });
 
-  it('stores last seen data in process desc', function() {
-    let component = render(<Component process={{id: 'id', start}} />);
-    let process = component.processes.process.process;
-    assert.strictEqual(component.processes.process.data, undefined);
-    process.onNext('data');
-    assert.strictEqual(component.processes.process.data, 'data');
-    process.onNext('data2');
-    assert.strictEqual(component.processes.process.data, 'data2');
+  it('stores last seen data in observable desc', function() {
+    let component = render(<Component observable={{id: 'id', start}} />);
+    let observed = component.observed.one;
+    assert.strictEqual(observed.data, undefined);
+    observed.observable.onNext('data');
+    assert.strictEqual(observed.data, 'data');
+    observed.observable.onNext('data2');
+    assert.strictEqual(observed.data, 'data2');
     unmount(component);
   });
 

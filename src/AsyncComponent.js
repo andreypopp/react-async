@@ -23,7 +23,7 @@ const DUMMY_OBSERVABLE = {
   subscribe: emptyFunction
 };
 
-const DUMM_SUBSCRIPTION = {
+const DUMMY_SUBSCRIPTION = {
   dispose: emptyFunction
 };
 
@@ -67,7 +67,7 @@ export default class AsyncComponent extends React.Component {
 
   componentWillUnmount() {
     for (let name in this.observed) {
-      this.observed.subscription.dispose();
+      this.observed[name].subscription.dispose();
     }
     this.observed = null;
   }
@@ -110,7 +110,7 @@ export default class AsyncComponent extends React.Component {
           });
         } else {
           next.observable = DUMMY_OBSERVABLE;
-          next.subscription = DUMM_SUBSCRIPTION;
+          next.subscription = DUMMY_SUBSCRIPTION;
         }
       }
       this.observed[name] = next;
@@ -123,7 +123,6 @@ export default class AsyncComponent extends React.Component {
   }
 
   _reconcileObservables(props, state) {
-    console.log("RECONCILIATION");
     let nextObserved = {...this.constructor.observe(props, state)};
     let prevObserved = this.observed;
     let prevNames = Object.keys(prevObserved);
