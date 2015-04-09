@@ -10,7 +10,7 @@ let Fiber;
 try {
   Fiber = require('fibers');
 } catch(err) {
-
+  // do nothing
 }
 
 /**
@@ -30,17 +30,17 @@ export default function renderToString(element, cb) {
     try {
       Fiber.current.__reactAsyncDataPacket__ = {};
 
-      let data = Fiber.current.__reactAsyncDataPacket__ ;
+      let data = Fiber.current.__reactAsyncDataPacket__;
       let markup = React.renderToString(element);
 
       // Inject data if callback doesn't receive the data argument
-      if (cb.length == 2) {
-        markup = injectIntoMarkup(markup, data)
+      if (cb.length === 2) {
+        markup = injectIntoMarkup(markup, data);
       }
 
       cb(null, markup, data);
     } catch(e) {
-      cb(e)
+      cb(e);
     } finally {
       delete Fiber.current.__reactAsyncDataPacket__;
     }

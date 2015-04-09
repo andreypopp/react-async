@@ -70,9 +70,11 @@ function decorateComponentClass(observe, Component) {
     render() {
       let props = {...this.props};
       for (let name in this.observed) {
-        props[name] = this.observed[name].data;
+        if (this.observed.hasOwnProperty(name)) {
+          props[name] = this.observed[name].data;
+        }
       }
       return <Component {...props} />;
     }
   };
-};
+}

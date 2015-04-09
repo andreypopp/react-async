@@ -15,7 +15,7 @@ export default function injectIntoMarkup(markup, data, scripts) {
   let injected = `<script>window.__reactAsyncDataPacket__ = ${escapedJson}</script>`;
 
   if (scripts) {
-    injected += scripts
+    injected = injected + scripts
       .map(script => `<script src="${script}"></script>`)
       .join('');
   }
