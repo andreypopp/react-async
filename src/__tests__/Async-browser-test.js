@@ -70,7 +70,7 @@ describe('AsyncComponent (browser)', function() {
     renderCount = 0;
   });
 
-  it('starts processes on componentWillMount', function() {
+  it('starts observables on componentWillMount', function() {
     let component = render(<Component observable={{id: 'id', start}} />);
     assert.ok(component.observed);
     assert.ok(component.observed.one);
@@ -83,8 +83,31 @@ describe('AsyncComponent (browser)', function() {
     assert.ok(observed.observable.onError);
   });
 
-  it('disposes processes on componentWillUnmount', function() {
+  it('subscribe to observables on componentWillMount', function() {
+    let observable = new ObservableMock();
+    let component = render(<Component observable={observable} />);
+    assert.ok(component.observed);
+    assert.ok(component.observed.one);
+    let observed = component.observed.one;
+    assert.ok(observed.id, 'id');
+    assert.ok(observed.observable);
+    assert.ok(observed.observable === observable);
+    assert.ok(observed.subscription);
+    assert.ok(!observed.subscription.disposed);
+    assert.ok(observed.observable.onNext);
+    assert.ok(observed.observable.onError);
+  });
+
+  it('disposes subscriptions on componentWillUnmount', function() {
     let component = render(<Component observable={{id: 'id', start}} />);
+    let subscription = component.observed.one.subscription;
+    unmount(component);
+    assert.ok(subscription.disposed);
+  });
+
+  it('disposes subscriptions on componentWillUnmount (when observable passed)', function() {
+    let observable = new ObservableMock();
+    let component = render(<Component observable={observable} />);
     let subscription = component.observed.one.subscription;
     unmount(component);
     assert.ok(subscription.disposed);
@@ -103,11 +126,43 @@ describe('AsyncComponent (browser)', function() {
     assert.ok(nextObserved.subscription.disposed);
   });
 
-  it('keeps observable running if id does not change', function() {
-    let component = render(<Component observable={{id: 'id', start}} />);
+  it('disposes an old observable and subscribe on a new one', function() {
+    let prevObservable = new ObservableMock();
+    let nextObservable = new ObservableMock();
+    let component = render(<Component observable={prevObservable} />);
     let prevObserved = component.observed.one;
     assert.ok(!prevObserved.subscription.disposed);
-    rerender(component, <Component observable={{id: 'id', start}} />);
+    rerender(component, <Component observable={nextObservable} />);
+    let nextObserved = component.observed.one;
+    assert.ok(prevObserved.subscription.disposed);
+    assert.ok(!nextObserved.subscription.disposed);
+    unmount(component);
+    assert.ok(prevObserved.subscription.disposed);
+    assert.ok(nextObserved.subscription.disposed);
+  });
+  
+  it('keeps observable running if id does not change', function() {
+    let observable = new ObservableMock();
+    let component = render(<Component observable={{id: null, start}} />);
+    let prevObserved = component.observed.one;
+    assert.ok(!prevObserved.subscription.disposed);
+    rerender(component, <Component observable={{id: null, start}} />);
+    let nextObserved = component.observed.one;
+    assert.ok(!nextObserved.subscription.disposed);
+    assert.ok(!prevObserved.subscription.disposed);
+    assert.ok(nextObserved.observable === nextObserved.observable);
+    assert.ok(nextObserved.subscription === nextObserved.subscription);
+    unmount(component);
+    assert.ok(nextObserved.subscription.disposed);
+    assert.ok(prevObserved.subscription.disposed);
+  });
+
+  it('keeps observable running if id does not change (observable passed)', function() {
+    let observable = new ObservableMock();
+    let component = render(<Component observable={observable} />);
+    let prevObserved = component.observed.one;
+    assert.ok(!prevObserved.subscription.disposed);
+    rerender(component, <Component observable={observable} />);
     let nextObserved = component.observed.one;
     assert.ok(!nextObserved.subscription.disposed);
     assert.ok(!prevObserved.subscription.disposed);
@@ -129,8 +184,32 @@ describe('AsyncComponent (browser)', function() {
     unmount(component);
   });
 
+  it('re-renders if data comes out of observable (observable passed)', function() {
+    let observable = new ObservableMock();
+    let component = render(<Component observable={observable} />);
+    let observed = component.observed.one;
+    assert.equal(renderCount, 1);
+    observed.observable.onNext('data');
+    assert.equal(renderCount, 2);
+    observed.observable.onNext('data2');
+    assert.equal(renderCount, 3);
+    unmount(component);
+  });
+
   it('stores last seen data in observable desc', function() {
     let component = render(<Component observable={{id: 'id', start}} />);
+    let observed = component.observed.one;
+    assert.strictEqual(observed.data, undefined);
+    observed.observable.onNext('data');
+    assert.strictEqual(observed.data, 'data');
+    observed.observable.onNext('data2');
+    assert.strictEqual(observed.data, 'data2');
+    unmount(component);
+  });
+
+  it('stores last seen data in observable desc (observable passed)', function() {
+    let observable = new ObservableMock();
+    let component = render(<Component observable={observable} />);
     let observed = component.observed.one;
     assert.strictEqual(observed.data, undefined);
     observed.observable.onNext('data');

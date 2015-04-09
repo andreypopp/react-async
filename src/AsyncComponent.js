@@ -84,16 +84,43 @@ export default class AsyncComponent extends React.Component {
     return `${rootNodeID}__${mountDepth}`;
   }
 
+  _observe(props, state, context) {
+    let observed = {...this.constructor.observe(props, state, context)};
+    let names = Object.keys(observed);
+    for (let i = 0; i < names.length; i++) {
+      let name = names[i];
+      let o = observed[names[i]];
+      invariant(
+        o && (o.id !== undefined && typeof o.start === 'function' ||
+              typeof o.subscribe === 'function'),
+        'observable description should be an observable or provide ' +
+        'an object with "id" token and "start" function as properties, ' +
+        'but %s observable description of %s component vioaltes this',
+        name, this.constructor.name
+      );
+      if (o && typeof o.subscribe === 'function') {
+        let observable = o;
+        o = {
+          id: observable,
+          start() {
+            return observable;
+          }
+        };
+      }
+      observed[name] = o;
+    }
+    return observed;
+  }
+
   _startObservables(props, state, context) {
     // we need to assign to this now because onNext can be synchronously called
-    this.observed = {...this.constructor.observe(props, state, context)};
+    this.observed = this._observe(props, state, context);
     let shouldWaitForTick = checkShouldWaitForTick();
     let nextNames = Object.keys(this.observed);
     let storedObserved = retrieveObservedInfo(this._fingerprint);
     for (let i = 0; i < nextNames.length; i++) {
       let name = nextNames[i];
       let next = this.observed[name];
-      validatedObserved(this.constructor.name, name, next);
       next = {
         ...next,
         ...storedObserved[name]
@@ -123,7 +150,7 @@ export default class AsyncComponent extends React.Component {
   }
 
   _reconcileObservables(props, state, context) {
-    let nextObserved = {...this.constructor.observe(props, state, context)};
+    let nextObserved = this._observe(props, state, context);
     let prevObserved = this.observed;
     let prevNames = Object.keys(prevObserved);
     let nextNames = Object.keys(nextObserved);
@@ -133,7 +160,6 @@ export default class AsyncComponent extends React.Component {
       let name = nextNames[i];
       let prev = prevObserved[name];
       let next = nextObserved[name];
-      validatedObserved(this.constructor.name, name, next);
       if (prev !== undefined && prev.id === next.id) {
         nextObserved[name] = prev;
       } else {
@@ -178,6 +204,10 @@ export default class AsyncComponent extends React.Component {
 
 }
 
+function isSameObservable(prev, next) {
+
+}
+
 function checkShouldWaitForTick() {
   return (
     Fiber !== undefined &&
@@ -187,18 +217,6 @@ function checkShouldWaitForTick() {
 }
 
 function validatedObserved(componentName, name, observed) {
-  invariant(
-    observed.id !== undefined,
-    'observable description should provide an "id" property ' +
-    'but observable description %s of %s component does not have it',
-    name, componentName
-  );
-  invariant(
-    typeof observed.start === 'function',
-    'observable description should provide a start() function ' +
-    'but observable description %s of %s component does not have it',
-    name, componentName
-  );
 }
 
 function waitForTick(observed) {
