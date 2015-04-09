@@ -6,7 +6,7 @@ BABEL_OPTS = \
 	--stage 0 \
 	--optional runtime
 
-TEST_SUITES         = $(wildcard lib/__tests__/*.js)
+TEST_SUITES         = $(wildcard ./src/__tests__/*.js)
 TEST_SUITES_COMMON  = $(filter-out %-browser-test.js %-server-test.js, $(TEST_SUITES))
 TEST_SUITES_BROWSER = $(filter %-browser-test.js, $(TEST_SUITES))
 TEST_SUITES_SERVER  = $(filter %-server-test.js, $(TEST_SUITES))
@@ -21,14 +21,26 @@ install link:
 
 test:: test-server test-browser
 
-test-server:: build
-	@$(BIN)/mocha -R dot $(TEST_SUITES_COMMON) $(TEST_SUITES_SERVER)
+test-server::
+	@$(BIN)/mocha \
+		-R dot \
+		--compilers js:./scripts/register-babel \
+		$(TEST_SUITES_COMMON) \
+		$(TEST_SUITES_SERVER)
 
-test-browser:: build
+ci-server::
+	@$(BIN)/mocha \
+		--watch \
+		-R dot \
+		--compilers js:./scripts/register-babel \
+		$(TEST_SUITES_COMMON) \
+		$(TEST_SUITES_SERVER)
+
+test-browser::
 	@$(BIN)/mochify \
 		--transform [ babelify $(BABEL_OPTS) ] \
-		$(TEST_SUITES_COMMON:lib/%=./src/%) \
-		$(TEST_SUITES_BROWSER:lib/%=./src/%)
+		$(TEST_SUITES_COMMON) \
+		$(TEST_SUITES_BROWSER)
 
 ci-browser:: build
 	@$(BIN)/mochify \
