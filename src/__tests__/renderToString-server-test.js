@@ -195,7 +195,6 @@ describe('ReactAsync.renderToString (server)', function() {
 
       assert.ok(markup.indexOf('hello') > -1);
       assert.ok(markup.indexOf('<script>window.__reactAsyncDataPacket__ = {') > -1);
-      assert.ok(markup.indexOf('{"message":{"id":null,"data":"hello","completed":true}}}</script>') > -1);
 
       done();
     });
