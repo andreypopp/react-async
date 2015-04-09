@@ -8,8 +8,9 @@ values.
 ## Installation
 
 React Async is packaged on npm:
-
-    % npm install react-async
+```sh
+$ npm install react-async
+```
 
 ## Basic usage
 
@@ -20,34 +21,36 @@ arrives.
 
 The basic example looks like:
 
-    import React from 'react';
-    import Async from 'react-async';
-    import Rx from 'rx';
+```js
+import React from 'react';
+import Async from 'react-async';
+import Rx from 'rx';
 
-    function defineXHRObservable(url) {
-      return {
-        id: url,
-        start() {
-          return Rx.fromPromise(fetch(url))
-        }
-      }
+function defineXHRObservable(url) {
+  return {
+    id: url,
+    start() {
+      return Rx.fromPromise(fetch(url))
     }
+  }
+}
 
-    function MyComponentObservables(props) {
-      return {
-        user: defineXHRObservable(`/api/user?user${props.userID}`)
-      }
-    }
+function MyComponentObservables(props) {
+  return {
+    user: defineXHRObservable(`/api/user?user${props.userID}`)
+  }
+}
 
-    @Async(MyComponentObservables)
-    class MyComponent extends React.Component {
+@Async(MyComponentObservables)
+class MyComponent extends React.Component {
 
-      render() {
-        let {user} = this.props
-        ...
-      }
+  render() {
+    let {user} = this.props
+    ...
+  }
 
-    }
+}
+```
 
 The `@Async` decorator injects data from observables via props so in `render()`
 method of `<MyComponent />` the `user` property will contain the data fetched
@@ -64,18 +67,20 @@ asynchronous and fetches all data defined in observable specifications before
 rendering a passed component tree.
 
 First, you'd need to install `fibers` package from npm to use that function:
-
-    % npm install fibers
+```sh
+$ npm install fibers
+```
 
 Then use it like:
+```js
+import {renderToString} from 'react-async';
 
-    import {renderToString} from 'react-async';
-
-    renderToString(
-      <Component />,
-      function(err, markup) {
-        // send markup to browser
-      })
+renderToString(
+  <Component />,
+  function(err, markup) {
+    // send markup to browser
+  })
+```
 
 This way allows you to have asynchronous components arbitrary deep in the
 hierarchy.
