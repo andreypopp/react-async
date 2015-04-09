@@ -38,15 +38,31 @@ export default class AsyncComponent extends React.Component {
 
   constructor(props) {
     super(props);
+    this._skipObservedReconciliation = true;
     this.observed = null;
+  }
+
+  setState(nextState, cb) {
+    this._skipObservedReconciliation = false;
+    super.setState(nextState, cb);
   }
 
   componentWillMount() {
     this._startObservables(this.props, this.state);
   }
 
+  componentWillReceiveProps() {
+    this._skipObservedReconciliation = false;
+  }
+
   componentWillUpdate(props, state) {
-    this._reconcileObservables(props, state);
+    if (!this._skipObservedReconciliation) {
+      this._reconcileObservables(props, state);
+    }
+  }
+
+  componentDidUpdate() {
+    this._skipObservedReconciliation = true;
   }
 
   componentWillUnmount() {
@@ -107,6 +123,7 @@ export default class AsyncComponent extends React.Component {
   }
 
   _reconcileObservables(props, state) {
+    console.log("RECONCILIATION");
     let nextObserved = {...this.constructor.observe(props, state)};
     let prevObserved = this.observed;
     let prevNames = Object.keys(prevObserved);
