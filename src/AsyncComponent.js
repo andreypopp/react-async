@@ -29,7 +29,7 @@ const DUMMY_SUBSCRIPTION = {
 
 export default class AsyncComponent extends React.Component {
 
-  static observe(props, state) {
+  static observe(props, state, context) {
     invariant(
       false,
       'AsyncComponent subclass should implement observe() class method'
@@ -48,16 +48,16 @@ export default class AsyncComponent extends React.Component {
   }
 
   componentWillMount() {
-    this._startObservables(this.props, this.state);
+    this._startObservables(this.props, this.state, this.context);
   }
 
   componentWillReceiveProps() {
     this._skipObservedReconciliation = false;
   }
 
-  componentWillUpdate(props, state) {
+  componentWillUpdate(props, state, context) {
     if (!this._skipObservedReconciliation) {
-      this._reconcileObservables(props, state);
+      this._reconcileObservables(props, state, context);
     }
   }
 
@@ -84,9 +84,9 @@ export default class AsyncComponent extends React.Component {
     return `${rootNodeID}__${mountDepth}`;
   }
 
-  _startObservables(props, state) {
+  _startObservables(props, state, context) {
     // we need to assign to this now because onNext can be synchronously called
-    this.observed = {...this.constructor.observe(props, state)};
+    this.observed = {...this.constructor.observe(props, state, context)};
     let shouldWaitForTick = checkShouldWaitForTick();
     let nextNames = Object.keys(this.observed);
     let storedObserved = retrieveObservedInfo(this._fingerprint);
@@ -122,8 +122,8 @@ export default class AsyncComponent extends React.Component {
     };
   }
 
-  _reconcileObservables(props, state) {
-    let nextObserved = {...this.constructor.observe(props, state)};
+  _reconcileObservables(props, state, context) {
+    let nextObserved = {...this.constructor.observe(props, state, context)};
     let prevObserved = this.observed;
     let prevNames = Object.keys(prevObserved);
     let nextNames = Object.keys(nextObserved);
