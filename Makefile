@@ -13,7 +13,7 @@ TEST_SUITES_SERVER  = $(filter %-server-test.js, $(TEST_SUITES))
 
 build: $(LIB)
 
-example: build
+example::
 	@$(BIN)/babel-node $(BABEL_OPTS) ./example/server.js
 
 install link:

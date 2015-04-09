@@ -78,7 +78,7 @@ class Timer extends React.Component {
         id: null,
         start(count) {
           // produce a new value each second
-          var observable = Rx.Observable.interval(1000);
+          let observable = Rx.Observable.interval(1000);
           // if we are resuming counting then shift by a previously computed
           // value on server
           if (count !== undefined) {
