@@ -113,9 +113,13 @@ export default class AsyncComponent extends React.Component {
   }
 
   _startObservables(props, state, context) {
+    let shouldWaitForTick = (
+      Fiber !== undefined &&
+      Fiber.current !== undefined &&
+      Fiber.current.__reactAsyncDataPacket__ !== undefined
+    );
     // we need to assign to this now because onNext can be synchronously called
     this.observed = this._observe(props, state, context);
-    let shouldWaitForTick = checkShouldWaitForTick();
     let nextNames = Object.keys(this.observed);
     let storedObserved = retrieveObservedInfo(this._fingerprint);
     for (let i = 0; i < nextNames.length; i++) {
@@ -202,21 +206,6 @@ export default class AsyncComponent extends React.Component {
     throw err;
   }
 
-}
-
-function isSameObservable(prev, next) {
-
-}
-
-function checkShouldWaitForTick() {
-  return (
-    Fiber !== undefined &&
-    Fiber.current !== undefined &&
-    Fiber.current.__reactAsyncDataPacket__ !== undefined
-  );
-}
-
-function validatedObserved(componentName, name, observed) {
 }
 
 function waitForTick(observed) {
