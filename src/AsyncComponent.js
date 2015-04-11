@@ -196,7 +196,7 @@ export default class AsyncComponent extends React.Component {
   }
 
   _onCompleted(name) {
-    // TODO: why it's useful?
+    this.observed[name].subscription.dispose();
   }
 
   _onError(name, err) {

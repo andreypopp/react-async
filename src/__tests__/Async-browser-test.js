@@ -18,11 +18,13 @@ class ObservableMock {
   constructor() {
     this.onNext = null;
     this.onError = null;
+    this.onCompleted = null;
   }
 
-  subscribe({onNext, onError}) {
+  subscribe({onNext, onError, onCompleted}) {
     this.onNext = onNext;
     this.onError = onError;
+    this.onCompleted = onCompleted;
     return new SubscriptionMock();
   }
 }
@@ -102,6 +104,14 @@ describe('AsyncComponent (browser)', function() {
     let component = render(<Component observable={{id: 'id', start}} />);
     let subscription = component.observed.one.subscription;
     unmount(component);
+    assert.ok(subscription.disposed);
+  });
+
+  it('disposes subscriptions when observable is completed', function() {
+    let component = render(<Component observable={{id: 'id', start}} />);
+    let {subscription, observable} = component.observed.one;
+    assert.ok(!subscription.disposed);
+    observable.onCompleted();
     assert.ok(subscription.disposed);
   });
 
