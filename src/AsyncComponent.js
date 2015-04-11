@@ -6,7 +6,6 @@ import React from 'react';
 import ExecutionEnvironment from 'react/lib/ExecutionEnvironment';
 import invariant from 'react/lib/invariant';
 import emptyFunction from 'react/lib/emptyFunction';
-import memoized from './memoized';
 
 let Fiber;
 let Future;
@@ -72,8 +71,7 @@ export default class AsyncComponent extends React.Component {
     this.observed = null;
   }
 
-  @memoized
-  get _fingerprint() {
+  _componentFingerprint() {
     let instance = this._reactInternalInstance;
     let rootNodeID = instance._rootNodeID;
     let mountDepth = 0;
@@ -113,6 +111,7 @@ export default class AsyncComponent extends React.Component {
   }
 
   _startObservables(props, state, context) {
+    let fingerprint = this._componentFingerprint();
     let shouldWaitForTick = (
       Fiber !== undefined &&
       Fiber.current !== undefined &&
@@ -121,7 +120,7 @@ export default class AsyncComponent extends React.Component {
     // we need to assign to this now because onNext can be synchronously called
     this.observed = this._observe(props, state, context);
     let nextNames = Object.keys(this.observed);
-    let storedObserved = retrieveObservedInfo(this._fingerprint);
+    let storedObserved = retrieveObservedInfo(fingerprint);
     for (let i = 0; i < nextNames.length; i++) {
       let name = nextNames[i];
       let next = this.observed[name];
@@ -149,7 +148,7 @@ export default class AsyncComponent extends React.Component {
 
     if (shouldWaitForTick) {
       this.observed = waitForTick(this.observed);
-      storeObservedInfo(this._fingerprint, this.observed);
+      storeObservedInfo(fingerprint, this.observed);
     };
   }
 
