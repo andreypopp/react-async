@@ -1,4 +1,17 @@
-## 2.0.0 (unreleased)
+## 3.0.0 (unreleased)
+
+  - Rewrite React Async to consume observables instead of fetching state
+    asynchronously.
+
+## 2.1.0
+
+  - Support for React 0.13
+
+## 2.0.1
+
+  - Bug fixes to make `isAsyncComponent()` not throw on DOM components.
+
+## 2.0.0
 
   - React Async is now compatible with React >= 0.12.0 only.
 
