@@ -17,6 +17,7 @@
     "axios": "^0.5.2",
     "babel": "^5.0.8",
     "babelify": "^6.0.1",
+    "bluebird": "^2.9.24",
     "browserify": "^6.1.0",
     "connect-browserify": "~3.2.1",
     "express": "~4.9.8",

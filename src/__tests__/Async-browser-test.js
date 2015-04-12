@@ -54,10 +54,6 @@ describe('AsyncComponent (browser)', function() {
   @Async
   class Component extends React.Component {
 
-    constructor(props) {
-      super(props);
-    }
-
     static observe(props) {
       return {one: props.observable};
     }

@@ -3,8 +3,7 @@ SRC = $(shell find src -name '*.js')
 LIB = $(SRC:src/%=lib/%)
 
 BABEL_OPTS = \
-	--stage 0 \
-	--optional runtime
+	--stage 0
 
 TEST_SUITES         = $(wildcard ./src/__tests__/*.js)
 TEST_SUITES_COMMON  = $(filter-out %-browser-test.js %-server-test.js, $(TEST_SUITES))
