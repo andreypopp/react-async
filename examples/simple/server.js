@@ -1,7 +1,7 @@
 import express from 'express';
 import browserify from 'connect-browserify';
 import React from 'react';
-import * as ReactAsync from '../src';
+import * as ReactAsync from '../../src';
 import App from './client';
 
 express()
@@ -12,9 +12,9 @@ express()
       debug: true,
       watch: true,
       transforms: [
-        ['babelify', {stage: 0}]
+        ['babelify', {stage: 0, optional: 'runtime'}]
       ]
-    }))
+    }, {watch: true}))
   .get('/', function(req, res, next) {
     if (process.env.NO_PRERENDER) {
       let markup = React.renderToString(<App />);

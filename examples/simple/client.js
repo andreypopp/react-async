@@ -2,7 +2,7 @@ import Promise from 'bluebird';
 import React from 'react';
 import axios from 'axios';
 import ReactMount from 'react/lib/ReactMount';
-import {Async} from '../src';
+import {Async} from '../../src';
 import Rx from 'rx';
 
 ReactMount.allowFullPageRender = true;
@@ -46,7 +46,7 @@ class App extends React.Component {
         </head>
         <body>
           <div>{message ? message.message : 'Loading...'}</div>
-          <Nested name={name} />
+          <Nested name={this.state.name} />
           <Timer />
         </body>
       </html>
@@ -82,7 +82,7 @@ class Timer extends React.Component {
           // if we are resuming counting then shift by a previously computed
           // value on server
           if (count !== undefined) {
-            return observable.map(x => x + count + 1).startWith(count + 1);
+            return observable.map(x => x + count).startWith(count);
           } else {
             return observable;
           }
