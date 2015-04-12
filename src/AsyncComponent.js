@@ -124,10 +124,12 @@ export default class AsyncComponent extends React.Component {
     for (let i = 0; i < nextNames.length; i++) {
       let name = nextNames[i];
       let next = this.observed[name];
-      next = {
-        ...next,
-        ...storedObserved[name]
-      };
+      let stored = storedObserved[name];
+      if (stored) {
+        next.id = stored.id;
+        next.data = stored.data;
+        next.completed = stored.completed;
+      }
       if (shouldWaitForTick) {
         next.observable = next.start();
       } else if (ExecutionEnvironment.canUseDOM) {
@@ -143,7 +145,6 @@ export default class AsyncComponent extends React.Component {
           next.subscription = DUMMY_SUBSCRIPTION;
         }
       }
-      this.observed[name] = next;
     }
 
     if (shouldWaitForTick) {
@@ -153,41 +154,37 @@ export default class AsyncComponent extends React.Component {
   }
 
   _reconcileObservables(props, state, context) {
-    let nextObserved = this._observe(props, state, context);
     let prevObserved = this.observed;
+    this.observed = this._observe(props, state, context);
     let prevNames = Object.keys(prevObserved);
-    let nextNames = Object.keys(nextObserved);
+    let nextNames = Object.keys(this.observed);
 
     // reconcile new observed dictionary
     for (let i = 0; i < nextNames.length; i++) {
       let name = nextNames[i];
       let prev = prevObserved[name];
-      let next = nextObserved[name];
+      let next = this.observed[name];
       if (prev !== undefined && prev.id === next.id) {
-        nextObserved[name] = prev;
+        this.observed[name] = prev;
       } else {
         prev.subscription.dispose();
-        next = {...next};
         next.observable = next.start();
         next.subscription = next.observable.subscribe({
           onNext: this._onNext.bind(this, name),
           onCompleted: this._onCompleted.bind(this, name),
           onError: this._onError.bind(this, name)
         });
-        nextObserved[name] = next;
+        this.observed[name] = next;
       }
     }
 
-    // cancel old observed which were not mentioned in nextObserved
+    // cancel prev observed which were not mentioned in next observed
     for (let i = 0; i < prevNames.length; i++) {
       let name = prevNames[i];
       if (nextNames.indexOf(name) === -1) {
         prevObserved[prevName].subscription.dispose();
       }
     }
-
-    // update observed dictionary
-    this.observed = nextObserved;
   }
 
   _onNext(name, data) {
