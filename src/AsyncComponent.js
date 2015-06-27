@@ -167,7 +167,6 @@ export default class AsyncComponent extends React.Component {
       if (prev !== undefined && prev.id === next.id) {
         this.observed[name] = prev;
       } else {
-        prev.subscription.dispose();
         next.observable = next.start();
         next.subscription = next.observable.subscribe({
           onNext: this._onNext.bind(this, name),
@@ -175,6 +174,9 @@ export default class AsyncComponent extends React.Component {
           onError: this._onError.bind(this, name)
         });
         this.observed[name] = next;
+        if (prev !== undefined) {
+          prev.subscription.dispose();
+        }
       }
     }
 
