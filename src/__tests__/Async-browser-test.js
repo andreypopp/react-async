@@ -1,5 +1,6 @@
 import assert from 'assert';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import TestUtils from 'react/lib/ReactTestUtils';
 import Async from '../Async';
 
@@ -34,8 +35,8 @@ function start() {
 }
 
 function rerender(component, element) {
-  let container = React.findDOMNode(component).parentNode;
-  React.render(element, container);
+  let container = ReactDOM.findDOMNode(component).parentNode;
+  ReactDOM.render(element, container);
 }
 
 function render(element) {
@@ -43,8 +44,8 @@ function render(element) {
 }
 
 function unmount(component) {
-  let container = React.findDOMNode(component).parentNode;
-  React.unmountComponentAtNode(container);
+  let container = ReactDOM.findDOMNode(component).parentNode;
+  ReactDOM.unmountComponentAtNode(container);
 }
 
 describe('AsyncComponent (browser)', function() {

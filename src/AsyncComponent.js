@@ -3,9 +3,9 @@
  */
 
 import React from 'react';
-import ExecutionEnvironment from 'react/lib/ExecutionEnvironment';
-import invariant from 'react/lib/invariant';
-import emptyFunction from 'react/lib/emptyFunction';
+import ExecutionEnvironment from 'exenv';
+import invariant from 'invariant';
+import emptyFunction from 'fbjs/lib/emptyFunction';
 
 let Fiber;
 let Future;

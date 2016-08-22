@@ -8,24 +8,28 @@
     "./src/index.js": "./src/index.web.js"
   },
   "dependencies": {
-    "ascii-json": "~0.2.0"
+    "ascii-json": "~0.2.0",
+    "exenv": "^1.2.1",
+    "fibers": "^1.0.13",
+    "invariant": "^2.2.1"
   },
   "peerDependencies": {
-    "react": "^0.13.0"
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1"
   },
   "devDependencies": {
-    "axios": "^0.5.2",
-    "babel": "^5.0.8",
-    "babelify": "^6.0.1",
-    "bluebird": "^2.9.24",
-    "browserify": "^6.1.0",
-    "connect-browserify": "~3.2.1",
-    "express": "~4.9.8",
-    "fibers": "~1.0.1",
+    "axios": "^0.5.4",
+    "babel": "^5.8.38",
+    "babelify": "^6.4.0",
+    "bluebird": "^2.10.2",
+    "browserify": "^6.3.4",
+    "connect-browserify": "^3.2.1",
+    "express": "^4.9.8",
     "mocha": "~1.21.5",
     "mochify": "^1.4.0",
     "phantomjs": "^1.9.11",
-    "react": "^0.13.0",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
     "rx": "^2.5.1",
     "semver": "~4.1.0"
   },
