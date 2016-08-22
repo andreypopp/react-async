@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import invariant from 'react/lib/invariant';
+import invariant from 'invariant';
 import AsyncComponent from './AsyncComponent';
 
 /**

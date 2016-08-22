@@ -3,7 +3,8 @@
  */
 
 import React from 'react';
-import invariant from 'react/lib/invariant';
+import ReactDOM from 'react-dom/server';
+import invariant from 'invariant';
 import injectIntoMarkup from './injectIntoMarkup';
 
 let Fiber;
@@ -31,7 +32,7 @@ export default function renderToString(element, cb) {
       Fiber.current.__reactAsyncDataPacket__ = {};
 
       let data = Fiber.current.__reactAsyncDataPacket__;
-      let markup = React.renderToString(element);
+      let markup = ReactDOM.renderToString(element);
 
       // Inject data if callback doesn't receive the data argument
       if (cb.length === 2) {

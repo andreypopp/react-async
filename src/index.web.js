@@ -2,7 +2,7 @@
  * @copyright 2015 Andrey Popp <8mayday@gmail.com>
  */
 
-import invariant from 'react/lib/invariant';
+import invariant from 'invariant';
 import Async from './Async';
 
 export default Async;
